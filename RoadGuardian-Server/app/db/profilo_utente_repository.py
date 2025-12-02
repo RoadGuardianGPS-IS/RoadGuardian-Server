@@ -33,3 +33,50 @@ def get_user_by_id(user_id: str) -> dict | None:
  #   """Cerca un utente per numero di telefono"""
   #  # restituisce un dizionario grezzo (o none), il service lo convertirà in Modello se serve
    # return user_collection.find_one({"num_tel": num_tel})
+
+def update_num_tel(user_id: str, new_phone: str) -> bool:
+    #Aggiorna il numero di telefono
+
+    try:
+        oid = ObjectId(user_id)
+        result = user_collection.update_one(
+            {"_id": oid},
+            #Nota: il campo nel DB si deve chiamare 'num_tel'.
+            {"$set": {"num_tel": new_phone}}
+        )
+        return result.modified_count > 0 # se la modifica viene effettuata, modified_count sale di 1
+    except Exception as e:
+        print(f"Errore update_phone_number: {e}")
+        return False
+    
+def update_email(user_id: str, new_email: str) -> bool:
+    #Aggiorna l'email dell'utente.
+
+    try:
+        oid = ObjectId(user_id)
+        result = user_collection.update_one(
+            {"_id": oid},
+            #Nota: il campo nel DB si deve chiamare 'email'
+            {"$set": {"email": new_email}}
+        )
+        return result.modified_count > 0 
+    except Exception as e:
+        print(f"Errore update_email: {e}")
+        return False
+    
+def update_password(user_id: str, new_password_hash: str) -> bool:
+    
+    #Aggiorna la password.
+    #ATTENZIONE: Questa funzione si aspetta di ricevere GIA' l'hash della password, non la password in chiaro.
+    
+    try:
+        oid = ObjectId(user_id)
+        result = user_collection.update_one(
+            {"_id": oid},
+            #Nota: il campo nel DB si deve chiamare 'password'
+            {"$set": {"password": new_password_hash}}
+        )
+        return result.modified_count > 0
+    except Exception as e:
+        print(f"Errore update_password: {e}")
+        return False
