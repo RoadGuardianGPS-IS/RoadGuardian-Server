@@ -141,3 +141,39 @@ class ProfiloUtenteService:
         
         # Restituzione del DTO
         return UserModelDTO(**updated_dict)
+    
+    def login_user(self, input_payload: UserCreateInput) -> UserModelDTO:
+        """Effettua il login dell'utente verificando email e password."""
+        user_dict = input_payload.model_dump()
+
+        # Hash della password fornita
+        hashed_password = self.hash_password(user_dict["password"])
+
+        # Recupero utente dal DB
+        existing_user = get_user_by_email(user_dict["email"])
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="Utente non trovato")
+
+        # Verifica della password
+        if existing_user["password"] != hashed_password:
+            raise HTTPException(status_code=401, detail="Password errata")
+
+        # Conversione in DTO
+        existing_user["_id"] = str(existing_user["_id"])
+        return UserModelDTO(**existing_user)
+    
+    def delete_user_profile(self, input_payload: UserUpdateInput) -> str:
+        """Elimina un profilo utente (soft delete)."""
+        user_dict = input_payload.model_dump() #informazioni utente da eliminare (email, password)
+        user_dict["password"] = self.hash_password(user_dict["password"])
+        # Recupero utente dal DB
+        existing_user = get_user_by_email(user_dict["email"])
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="Utente non trovato")
+        # Verifica della password
+        if existing_user["password"] != user_dict["password"]:
+            raise HTTPException(status_code=401, detail="Password errata")
+        # Esegue la soft delete (setta il flag "is_active" a False)
+        update_user(str(existing_user["_id"]), {"is_active": False})
+        
+        return "Profilo utente eliminato"
