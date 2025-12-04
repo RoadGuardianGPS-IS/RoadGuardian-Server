@@ -53,7 +53,7 @@ class UserModelChangeDTO(BaseModel):
 
 
 class UserCreateInput(BaseModel):
-    """Modello per la crezione (Input dal client - tutti obbligatori)"""
+    """Modello per la creazione (Input dal client - tutti obbligatori)"""
     first_name: str
     last_name: str
     email: EmailStr
