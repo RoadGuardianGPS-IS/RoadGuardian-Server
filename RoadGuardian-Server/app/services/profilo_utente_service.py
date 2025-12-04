@@ -1,47 +1,143 @@
 from schemas.user_schema import EmailUpdateSchema, PhoneUpdateSchema, PasswordUpdateSchema
-from db.profilo_utente_repository import update_email, update_num_tel, update_password
-#qui verra messo l'import dell'hashing
+from db.profilo_utente_repository import get_user_by_email, update_email, update_num_tel, update_password, create_user, update_user
+from models.user_model import UserCreateInput, UserModel, UserModelDTO, UserUpdateInput
+from fastapi import HTTPException
+import hashlib
 
-def change_email_logic(user_id: str, email_input: str) -> str:
-    try:
-        #se l'email e sbagliata, questa riga fara errore
-        valid_data = EmailUpdateSchema(new_email=email_input)
+class ProfiloUtenteService:
 
-        #Se siamo qui, l'email e valida. Chiamiamo il DB
-        success = update_email(user_id, valid_data.new_email)
-
-        if success:
-            return "Email aggiornata"
-        return "Errore: utente non trovato nel DB"
+    def __init__(self, db):
+        self.db = db
     
-    except Exception as e:
-        error_msg = e.errors()[0]['msg']
-        return f"bloccato dallo schema: {error_msg}"
+    def change_email_logic(self,user_id: str, email_input: str) -> str:
+        try:
+            #se l'email e sbagliata, questa riga fara errore
+            valid_data = EmailUpdateSchema(new_email=email_input)
+
+            #Se siamo qui, l'email e valida. Chiamiamo il DB
+            success = update_email(user_id, valid_data.new_email)
+
+            if success:
+                return "Email aggiornata"
+            return "Errore: utente non trovato nel DB"
+        
+        except Exception as e:
+            error_msg = e.errors()[0]['msg']
+            return f"bloccato dallo schema: {error_msg}"
+        
+    def change_password_logic(self, user_id: str, plain_password: str) -> str:
+        try:
+            valid_data = PasswordUpdateSchema(new_password=plain_password)
+
+            password_cambiata = valid_data.new_password.get_secret_value() # passa SecretStr quindi serve get_secret_value
+
+            success = update_password(user_id, password_cambiata)
+
+            if success:
+                return "password aggiornata"
+            return "errore DB"
+        
+        except Exception as e:
+            return "bloccato dallo schema"
+        
+    def change_phone_logic(self, user_id: str, phone_input: str) -> str:
+        try:
+            valid_data = PhoneUpdateSchema(new_phone=phone_input)
+
+            success = update_num_tel(user_id, str(valid_data.new_phone))
+
+            if success:
+                return "numero telefono aggiornato"
+            return "errore DB"
+        
+        except Exception as e:
+            return "bloccato dallo schema"
     
-def change_password_logic(user_id: str, plain_password: str) -> str:
-    try:
-        valid_data = PasswordUpdateSchema(new_password=plain_password)
+    def hash_password(self, plain_password: str) -> str:
+        """Hasha la password"""
+        return hashlib.sha256(plain_password.encode("utf-8")).hexdigest()
 
-        password_cambiata = valid_data.new_password.get_secret_value() # passa SecretStr quindi serve get_secret_value
-
-        success = update_password(user_id, password_cambiata)
-
-        if success:
-            return "password aggiornata"
-        return "errore DB"
+    def validate_prefix_phone_number(self, phone_number: str) -> str:
+        """Controlla e aggiunge il prefisso internazionale al numero di telefono se mancante."""
+        if phone_number.startswith("+39")or phone_number.startswith("tel:"):
+            return phone_number
+        # Aggiungi prefisso internazionale italiano (+39) se manca
+        return "+39" + phone_number
     
-    except Exception as e:
-        return "bloccato dallo schema"
-    
-def change_phone_logic(user_id: str, phone_input: str) -> str:
-    try:
-        valid_data = PhoneUpdateSchema(new_phone=phone_input)
+    def create_user_profile(self, input_payload: UserCreateInput) -> UserModel:
 
-        success = update_num_tel(user_id, str(valid_data.new_phone))
+        user_dict = input_payload.model_dump()
 
-        if success:
-            return "numero telefono aggiornato"
-        return "errore DB"
+        # Controllo unicità email
+        #existing = get_user_by_email(user_dict["email"])
+        #if existing:
+        #    raise HTTPException(status_code=400, detail="Email già registrata")
+
+
+        hashed = self.hash_password(user_dict["password"])
+        user_dict["password"] = hashed
+
+        # Aggiunta prefisso internazionale al numero di telefono
+        user_dict["num_tel"] = self.validate_prefix_phone_number(str(user_dict["num_tel"]))
+
+        try:
+            nuovo_utente = UserModel(**user_dict) #Scompone user_dict in argomenti chiave=valore
+        except Exception as e:
+            raise HTTPException(status_code=422, detail=str(e))
+
+        try:
+            saved = create_user(nuovo_utente) #Salva nel DB
+            return saved
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Errore inserimento DB: {e}")
+
+    def output_user_dto(self, user: UserModel) -> dict:
+        """Nasconde la password e converte in DTO per output API."""
+        return user.model_dump(by_alias=True, exclude={"password"})
     
-    except Exception as e:
-        return "bloccato dallo schema"
+    def update_user_profile(self, user_id: str, input_payload: UserUpdateInput) -> UserModelDTO:
+        """Modifica i dati anagrafici di un utente specifico."""
+        #Otteniamo solo i campi che l'utente ha effettivamente inviato
+        update_data = input_payload.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(status_code=400, detail="Nessun dato fornito per l'aggiornamento")
+
+        # Iteriamo su ogni campo per applicare logiche specifiche usando if/elif
+        # Usiamo list(items()) per sicurezza durante l'iterazione
+        for key, value in list(update_data.items()):
+            
+            if key == "password":
+                # Se stiamo aggiornando la password, dobbiamo farne l'hash
+                update_data[key] = self.hash_password(value)
+            
+            elif key == "num_tel":
+                # Convertiamo il PhoneNumber object in stringa per MongoDB
+                update_data[key] = self.validate_prefix_phone_number(str(value))
+            
+            elif key == "email":
+                # Controllo unicità: se cambia email, verifichiamo che non sia già presa da altri
+                existing = get_user_by_email(value)
+                # Se esiste un utente con questa email E l'ID non corrisponde all'utente attuale
+                if existing and str(existing["_id"]) != user_id:
+                    raise HTTPException(status_code=400, detail="La nuova email è già in uso.")
+            
+            elif key == "first_name":
+                # Modfica del nome
+                update_data[key] = str(value)
+
+            elif key == "last_name":
+                # Modifica del cognome
+                update_data[key] = str(value)
+
+        # Salviamo le modifiche nel DB
+        updated_dict = update_user(user_id, update_data)
+
+        if not updated_dict:
+            raise HTTPException(status_code=404, detail="Utente non trovato")
+
+        # Convertiamo l'ID in stringa per il DTO
+        updated_dict["_id"] = str(updated_dict["_id"])
+        
+        # Restituzione del DTO
+        return UserModelDTO(**updated_dict)
