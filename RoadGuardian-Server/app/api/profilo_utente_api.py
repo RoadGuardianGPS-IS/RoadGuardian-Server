@@ -69,3 +69,41 @@ def update_existing_user(
     - 404 Not Found: Utente inesistente.
     """
     return service.update_user_profile(user_id, input_payload)
+
+@router.post("/login", response_model=UserModelDTO)
+def login(
+        input_payload: UserUpdateInput,
+        service: ProfiloUtenteService = Depends(get_profilo_service)
+):
+    """
+    Scopo: Effettua il login di un utente.
+
+    Parametri Input:
+    - input_payload (JSON Body): Email e Password dell'utente.
+
+    Valore di Ritorno:
+    - JSON (UserModelDTO): Dati dell'utente loggato (esclusa password).
+
+    Gestione Errori:
+    - 401 Unauthorized: Credenziali errate.
+    """
+    return service.login_user(input_payload)
+
+@router.post("/delete/{user_id}", response_model=str)
+def delete_account(
+        input_payload: UserUpdateInput,
+        service: ProfiloUtenteService = Depends(get_profilo_service)
+):
+    """
+    Scopo: Elimina l'account di un utente specifico.
+
+    Parametri Input:
+    - user_id (Path Param): ID dell'utente da eliminare.
+
+    Valore di Ritorno:
+    - Nessun contenuto (204 No Content).
+
+    Gestione Errori:
+    - 404 Not Found: Utente inesistente.
+    """
+    return service.delete_user_profile(input_payload)
