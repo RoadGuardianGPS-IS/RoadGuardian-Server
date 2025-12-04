@@ -1,7 +1,9 @@
+from pymongo import ReturnDocument
 from db.connection import get_database
 from models.user_model import UserModel
 from bson import ObjectId
 from pydantic_extra_types.phone_numbers import PhoneNumber
+from typing import Dict, Any
 
 # Otteniamo la collezione specifica
 db = get_database()
@@ -16,10 +18,10 @@ def create_user(user: UserModel) -> UserModel:
     user.id = str(result.inserted_id)
     return user
 
-#def get_user_by_email(email: str) -> dict | None:
- #   """Cerca un utente per email"""
-  #  # Restituisce un dizionario grezzo (o None), il Service lo convertirà in Modello se serve
-   # return user_collection.find_one({"email": email})
+def get_user_by_email(email: str) -> dict | None:
+    """Cerca un utente per email"""
+    # Restituisce un dizionario grezzo (o None), il Service lo convertirà in Modello se serve
+    return user_collection.find_one({"email": email})
 
 def get_user_by_id(user_id: str) -> dict | None:
     """Cerca un utente per ID"""
@@ -29,10 +31,10 @@ def get_user_by_id(user_id: str) -> dict | None:
     except:
         return None
     
-#def get_user_by_num_tel(num_tel: PhoneNumber) -> dict | None:
- #   """Cerca un utente per numero di telefono"""
-  #  # restituisce un dizionario grezzo (o none), il service lo convertirà in Modello se serve
-   # return user_collection.find_one({"num_tel": num_tel})
+def get_user_by_num_tel(num_tel: PhoneNumber) -> dict | None:
+    """Cerca un utente per numero di telefono"""
+    # restituisce un dizionario grezzo (o none), il service lo convertirà in Modello se serve
+    return user_collection.find_one({"num_tel": str(num_tel)})
 
 def update_num_tel(user_id: str, new_phone: str) -> bool:
     #Aggiorna il numero di telefono
@@ -80,3 +82,17 @@ def update_password(user_id: str, new_password_hash: str) -> bool:
     except Exception as e:
         print(f"Errore update_password: {e}")
         return False
+    
+def update_user(user_id: str, fields_to_update: Dict[str, any]) -> dict | None:
+    """Aggiorna i campi specificati di un utente"""
+    try:
+        oid = ObjectId(user_id)
+        result = user_collection.find_one_and_update(
+            {"_id": oid},
+            {"$set": fields_to_update},
+            return_document=ReturnDocument.AFTER  # Restituisce il documento aggiornato
+        )
+        return result
+    except Exception as e:
+        print(f"Errore update_user: {e}")
+        return None
