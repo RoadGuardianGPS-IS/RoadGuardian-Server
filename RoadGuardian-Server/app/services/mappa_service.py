@@ -1,0 +1,35 @@
+from typing import List
+from app.schemas.mappa_schema import SegnalazioneMapDTO
+from app.db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+
+class MappaService:
+    def get_active_incidents(self) -> List[SegnalazioneMapDTO]:
+        """Recupera tutte le segnalazioni attive.
+        Returns:
+            List[SegnalazioneMapDTO]: Lista di segnalazioni attive, formattate per la mappa
+        """
+        # Recupera tutte le segnalazioni attive dal repository
+        all_segnalazioni = get_segnalazione_by_status(True)
+        
+        result = []
+        for segnalazione in all_segnalazioni:
+            segnalazione_dto = SegnalazioneMapDTO(**segnalazione)
+            result.append(segnalazione_dto)
+        return result
+    
+    def get_filtered_incidents(self, tipi_incidente: List[str]) -> List[SegnalazioneMapDTO]:
+        """Recupera segnalazioni attive filtrate per tipo di incidente.
+        Args:
+            tipi_incidente (List[str]): Tipi di incidente da filtrare
+        Returns:
+            List[SegnalazioneMapDTO]: Lista di segnalazioni filtrate
+        """
+        result = []
+        # Per ogni tipo di incidente richiesto, recupera le segnalazioni corrispondenti
+        for tipo in tipi_incidente:
+            segnalazioni_by_category = get_segnalazione_by_category(tipo)
+            # Aggiungi le segnalazioni trovate alla lista dei risultati e li trasforma in SegnalazioneMapDTO
+            for segnalazione in segnalazioni_by_category:
+                    segnalazione_dto = SegnalazioneMapDTO(**segnalazione)
+                    result.append(segnalazione_dto)
+        return result
