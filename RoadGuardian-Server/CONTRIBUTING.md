@@ -7,7 +7,7 @@ Questo documento descrive come contribuire usando **GitHub Desktop**, semplifica
 
 # 👥 Struttura del Team
 
-- **Frontend (Flutter)** → 4 membri di cui un Team Leader  
+- **Frontend (Flutter)** → 3 membri di cui un Team Leader  
 - **Backend (Python)** → 4 membri di cui un Team Leader  
 - **Database (MongoDB)** → 3 membri di cui Team Leader  
 
@@ -32,13 +32,12 @@ Utilizziamo tre livelli:
 ### **3. Branch “feature”**
 Usati dai membri dei team per ogni nuova funzione.
 
-Formato: feature/nome-funzionalita
+Formato: feature/nome-sottosistema
 
 Esempi:
-- `feature/login`
-- `feature/registrazione-utente`
-- `feature/visualizza-mappa`
-- `feature/api-segnalazioni`
+- `feature/gestione_profilo`
+- `feature/gestione_mappa`
+- `feature/gestione_segnalazioni`
 
 ---
 
@@ -56,7 +55,7 @@ Esempi:
 1. In alto → **Current Branch**
 2. Seleziona **New Branch**
 3. Nome branch:  
-   `feature/nome-funzionalita`
+   `feature/nome_sottosistema`
 4. Premere **Create Branch**  
 5. In automatico siete ora sul nuovo branch.
 
@@ -72,7 +71,7 @@ Esempi:
 1. Tornare su GitHub Desktop
 2. Scrivere un **Titolo del commit** chiaro
 3. Aggiungere **descrizione**
-4. Premere **Commit to feature/nome-funzionalita**
+4. Premere **Commit to feature/nome_sottosistema**
 5. Premere **Push origin**
 
 ---
@@ -83,7 +82,7 @@ Esempi:
 3. Si aprirà GitHub nel browser
 4. Controllare:
    - **Base branch:** develop  
-   - **Compare:** feature/nome-funzionalita  
+   - **Compare:** feature/nome_sottosistema  
 5. Inserire:
    - Titolo PR chiaro
    - Descrizione completa:
