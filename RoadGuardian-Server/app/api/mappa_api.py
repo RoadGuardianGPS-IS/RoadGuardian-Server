@@ -14,7 +14,6 @@ def get_mappa_service(db=Depends(get_database)):
 # --- Endpoint 1: Visualizzazione Mappa e Segnalazioni Attive (RF_03, RF_13) ---
 @router.get("/segnalazioni/attive", response_model=List[SegnalazioneMapDTO])
 def get_active_incidents(
-    user_location: PosizioneGPS = Depends(), # Modello che include Latitudine e Longitudine
     service: MappaService = Depends(get_mappa_service)
 ):
     """
@@ -31,32 +30,11 @@ def get_active_incidents(
     - 400 Bad Request: Se i dati di posizione non sono validi.
     - 404 Not Found: (Gestito nel Service se necessario, ma l'endpoint ritorna lista vuota se 0 risultati).
     """
-    return service.get_active_incidents_near(user_location)
+    return service.get_active_incidents()
 
-# --- Endpoint 2: Visualizzazione Dettagli Incidente (RF_06) ---
-@router.get("/dettagli/{incident_id}", response_model=SegnalazioneMapDTO)
-def get_incident_details(
-    incident_id: str,
-    service: MappaService = Depends(get_mappa_service)
-):
-    """
-    Scopo: Endpoint per visualizzare tutti i dettagli di una specifica segnalazione di incidente.
-
-    Parametri Input:
-    - incident_id (Path Param): ID univoco della segnalazione.
-
-    Valore di Ritorno:
-    - JSON (SegnalazioneMapDTO): Oggetto completo con tutti i dettagli (descrizione, gravità, coordinate, ecc.).
-
-    Gestione Errori:
-    - 404 Not Found: Segnalazione non esistente o risolta.
-    """
-    return service.get_incident_details(incident_id)
-
-# --- Endpoint 3: Filtraggio per Tipo (RF_18) ---
+# --- Endpoint 2: Filtraggio per Tipo (RF_18) ---
 @router.get("/segnalazioni/filtrate", response_model=List[SegnalazioneMapDTO])
 def get_filtered_incidents(
-    user_location: PosizioneGPS = Depends(),
     tipi_incidente: Optional[List[str]] = Query(None, description="Lista dei tipi di incidente su cui filtrare"),
     service: MappaService = Depends(get_mappa_service)
 ):
@@ -73,15 +51,15 @@ def get_filtered_incidents(
     Gestione Errori:
     - 400 Bad Request: Tipo di incidente non valido/non riconosciuto.
     """
-    return service.get_filtered_incidents(user_location, tipi_incidente)
+    return service.get_filtered_incidents(tipi_incidente)
 
-# --- Endpoint 4: Classificazione per Numero di Segnalazioni (RF_14) ---
+"""--- Endpoint 3: Classificazione per Numero di Segnalazioni (RF_14) ---
 @router.get("/classifica", response_model=List[SegnalazioneMapDTO])
 def get_incident_ranking(
     user_location: PosizioneGPS = Depends(),
     service: MappaService = Depends(get_mappa_service)
 ):
-    """
+    
     Scopo: Endpoint per ottenere una classifica degli incidenti nelle vicinanze ordinati per numero di segnalazioni.
 
     Parametri Input:
@@ -92,26 +70,6 @@ def get_incident_ranking(
 
     Gestione Errori:
     - 400 Bad Request: Dati di posizione non validi.
-    """
+    
     return service.get_incidents_ranking(user_location)
-
-# --- Endpoint 5: Visualizzazione Linee Guida (RF_05, RF_16) ---
-@router.get("/lineeguida/{incident_id}", response_model=str) # Assumendo che le linee guida siano una stringa per semplicità
-def get_incident_guidelines(
-    incident_id: str,
-    service: MappaService = Depends(get_mappa_service)
-):
-    """
-    Scopo: Endpoint per visualizzare le linee guida comportamentali (anche AI) per un incidente specifico.
-
-    Parametri Input:
-    - incident_id (Path Param): ID univoco della segnalazione.
-
-    Valore di Ritorno:
-    - String: Linee guida comportamentali appropriate al tipo di incidente.
-
-    Gestione Errori:
-    - 404 Not Found: Incidente non esistente o linee guida non disponibili.
-    """
-    # Questo endpoint userà il Modulo AI Linee Guida (attraverso un Adapter, vedi ODD)
-    return service.get_guidelines_for_incident(incident_id)
+"""
