@@ -3,7 +3,7 @@ from datetime import date, time, datetime
 from typing import Optional, Dict, Literal
 
 
-class SegnalazioneManualeInput(BaseModel):
+class SegnalazioneInput(BaseModel):
     """
     Schema per la creazione di una nuova segnalazione.
     Contiene solo i dati forniti dal client.
@@ -30,7 +30,7 @@ class SegnalazioneManualeInput(BaseModel):
         le=90.0
     )
     seriousness: Literal['low', 'medium', 'high'] = Field(
-        ..., 
+        'high', 
         description="Livello di gravità dell'incidente. Valori ammessi: 'low', 'medium', 'high'."
     )
     category: str = Field(
@@ -100,15 +100,15 @@ class SegnalazioneOutputDTO(BaseModel):
         le=90.0
     )
     seriousness: Literal['low', 'medium', 'high'] = Field(
-        ..., 
+        'high', 
         description="Livello di gravità dell'incidente. Valori ammessi: 'low', 'medium', 'high'."
     )
     status: bool = Field(
         default=True, 
         description="Stato della segnalazione: True se creata/attiva, False se risolta/inattiva."
     )
-    category: str = Field(
-        ..., 
+    category: Optional[str] = Field(
+        None, 
         description="Categoria dell'incidente (es. 'incidente stradale', 'tamponamento', 'collisione laterale').",
         min_length=1,
         max_length=50
@@ -153,13 +153,13 @@ class SegnalazioneOutputDTO(BaseModel):
             "longitudine": self.incident_longitude
         }
 
-class SegnalazioneStatoUpdate(BaseModel): #da eliminare facendo cambiare l'update dell'api con una chiamata a deletesegnalazione nel service
-    """
-    Schema per l'aggiornamento dello stato di una segnalazione.
-    """
-    status: bool = Field(
-        ..., 
-        description="Nuovo stato della segnalazione: True (attiva) o False (risolta/inattiva)."
-    )
 
+# class SegnalazioneStatoUpdate(BaseModel): #da eliminare facendo cambiare l'update dell'api con una chiamata a deletesegnalazione nel service
+#     """
+#     Schema per l'aggiornamento dello stato di una segnalazione.
+#     """
+#     status: bool = Field(
+#         ..., 
+#         description="Nuovo stato della segnalazione: True (attiva) o False (risolta/inattiva)."
+#     )
 

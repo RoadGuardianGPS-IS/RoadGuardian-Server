@@ -16,7 +16,7 @@ sys.path.insert(0, app_dir)
 
 # Import dei moduli da testare
 # Nota: Assicurati che il path sia configurato correttamente per eseguire i test
-from app.schemas.segnalazione_schema import SegnalazioneManualeInput, SegnalazioneOutputDTO, SegnalazioneStatoUpdate
+from app.schemas.segnalazione_schema import SegnalazioneManualeInput, SegnalazioneOutputDTO
 from app.schemas.mappa_schema import PosizioneGPS, SegnalazioneMapDTO, SegnalazioneDettaglioDTO
 from app.models.incident_model import IncidentModel
 
