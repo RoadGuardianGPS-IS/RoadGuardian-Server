@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, Query, status
-from typing import Optional, List
-from app.schemas.segnalazione_schema import (SegnalazioneInput,SegnalazioneOutputDTO,)
+from fastapi import APIRouter, Depends, status
+from app.schemas.segnalazione_schema import (SegnalazioneInput,SegnalazioneOutputDTO)
 from app.db.connection import get_database
 
 router = APIRouter(
