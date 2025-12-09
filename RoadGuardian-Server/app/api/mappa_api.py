@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, Query, status
-from typing import List, Optional
+from fastapi import APIRouter, Depends, Query
 from services.mappa_service import MappaService # Assumendo che esista
-from models.mappa_model import SegnalazioneMapDTO, PosizioneGPS
+from schemas.mappa_schema import SegnalazioneMapDTO
 from db.connection import get_database # Assumendo che esista
 
 router = APIRouter(prefix="/mappa", tags=["Gestione Mappa"])
