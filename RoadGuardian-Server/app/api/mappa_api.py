@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, Query
+from typing import List, Optional
 from services.mappa_service import MappaService # Assumendo che esista
 from schemas.mappa_schema import SegnalazioneMapDTO
 from db.connection import get_database # Assumendo che esista
