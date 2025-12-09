@@ -66,29 +66,4 @@ class SegnalazioneMapDTO(BaseModel):
         }
     )
 
-class SegnalazioneDettaglioDTO(SegnalazioneMapDTO):
-    """
-    Schema esteso per la visualizzazione dei dettagli completi di una segnalazione.
-    Eredita da SegnalazioneMapDTO e aggiunge i campi descrittivi.
-    Utilizzato nell'endpoint /dettagli/{incident_id}.
-    """
-    incident_date: date = Field(
-        ..., 
-        description="Data in cui è avvenuto l'incidente (formato YYYY-MM-DD)."
-    )
-    incident_time: time = Field(
-        ..., 
-        description="Orario in cui è avvenuto l'incidente (formato HH:MM:SS)."
-    )
-    status: bool = Field(
-        ..., 
-        description="Stato della segnalazione: True se attiva, False se risolta/inattiva."
-    )
-    description: Optional[str] = Field(
-        None, 
-        description="Descrizione testuale dell'incidente."
-    )
-    img_url: Optional[str] = Field(
-        None, 
-        description="URL dell'immagine allegata."
-    )
+
