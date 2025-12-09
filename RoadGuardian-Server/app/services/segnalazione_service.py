@@ -1,6 +1,6 @@
 from app.schemas.mappa_schema import SegnalazioneMapDTO
 from app.db.segnalazione_repository import get_segnalazione_by_id
-class seganalazioneService: 
+class segnalazioneService: 
     def get_incident_details(self, incident_id: str) -> SegnalazioneMapDTO:
         """Recupera i dettagli di una segnalazione specifica.
         Args:
