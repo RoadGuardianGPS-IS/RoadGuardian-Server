@@ -50,13 +50,13 @@ class SegnalazioneService:
         
         guidelines = {
             "tamponamento" : "In caso di tamponamento, assicurati di accostare in sicurezza, accendi le luci di emergenza e posiziona il triangolo di segnalazione.",
-            "collisione_laterale" : "In caso di collisione laterale, verifica le condizioni di tutti i coinvolti, chiama i soccorsi se necessario e scambia le informazioni con gli altri conducenti.",
+            "collisione laterale" : "In caso di collisione laterale, verifica le condizioni di tutti i coinvolti, chiama i soccorsi se necessario e scambia le informazioni con gli altri conducenti.",
             "deragliamento" : "Se sei uscito fuori strada, rimani calmo, valuta la situazione e chiama i soccorsi se necessario. Non tentare di rientrare sulla strada da solo.",
-            "scontro_frontale" : "In caso di scontro frontale, verifica le condizioni di tutti i coinvolti, chiama immediatamente i soccorsi e presta assistenza se possibile.",
+            "scontro frontale" : "In caso di scontro frontale, verifica le condizioni di tutti i coinvolti, chiama immediatamente i soccorsi e presta assistenza se possibile.",
             "ribaltamento" : "In caso di ribaltamento, rimani calmo, valuta la situazione e chiama i soccorsi se necessario. Non tentare di uscire dal veicolo se non è sicuro farlo.",
             "investimento" : "In caso di investimento, chiama immediatamente i soccorsi, presta assistenza alla vittima se possibile e segnala l'incidente alle autorità competenti.",
-            "ostacolo_sulla_strada" : "Se incontri un ostacolo sulla strada, rallenta, accendi le luci di emergenza e segnala l'ostacolo agli altri conducenti.",
-            "urto_con_animale" : "In caso di urto con un animale, accosta in sicurezza, valuta le condizioni del veicolo e dell'animale, e chiama i soccorsi se necessario."
+            "ostacolo sulla strada" : "Se incontri un ostacolo sulla strada, rallenta, accendi le luci di emergenza e segnala l'ostacolo agli altri conducenti.",
+            "urto con animale" : "In caso di urto con un animale, accosta in sicurezza, valuta le condizioni del veicolo e dell'animale, e chiama i soccorsi se necessario."
         }
 
         return guidelines.get(incident["category"])
