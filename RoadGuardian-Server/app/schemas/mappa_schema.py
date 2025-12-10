@@ -20,6 +20,15 @@ class PosizioneGPS(BaseModel):
         le=180.0
     )
 
+class UserPositionUpdate(BaseModel):
+    """
+    Schema per l'aggiornamento della posizione dell'utente.
+    Inviato periodicamente dal client.
+    """
+    latitudine: float = Field(..., ge=-90.0, le=90.0)
+    longitudine: float = Field(..., ge=-180.0, le=180.0)
+    fcm_token: Optional[str] = Field(None, description="Token FCM per le notifiche push.")
+
 class SegnalazioneMapDTO(BaseModel):
     """
     Schema ottimizzato per la visualizzazione delle segnalazioni sulla mappa.

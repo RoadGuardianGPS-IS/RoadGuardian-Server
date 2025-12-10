@@ -1,10 +1,14 @@
 from typing import List
-from schemas.mappa_schema import SegnalazioneMapDTO
-from db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+import math
+from app.schemas.mappa_schema import SegnalazioneMapDTO, UserPositionUpdate
+from app.db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+from app.notifications.notify_fcm_adapter import NotifyFCMAdapter
 
 class MappaService:
     def __init__(self, db):
         self.db = db
+        self.notification_adapter = NotifyFCMAdapter()
+
     def get_active_incidents(self) -> List[SegnalazioneMapDTO]:
         """Recupera tutte le segnalazioni attive.
         Returns:
@@ -41,3 +45,55 @@ class MappaService:
                     segnalazione_dto = SegnalazioneMapDTO(**segnalazione)
                     result.append(segnalazione_dto)
         return result
+
+    def process_user_position(self, position_update: UserPositionUpdate):
+        """
+        Elabora l'aggiornamento della posizione dell'utente.
+        Controlla se ci sono segnalazioni attive entro 3 km e invia notifiche.
+        """
+        if not position_update.fcm_token:
+            return # Nessun token per inviare notifiche
+
+        active_incidents = self.get_active_incidents()
+        
+        for incident in active_incidents:
+            distance = self._calculate_distance(
+                position_update.latitudine, 
+                position_update.longitudine,
+                incident.incident_latitude,
+                incident.incident_longitude
+            )
+            
+            if distance <= 3.0: # 3 km
+                # Invia notifica
+                print("MappaService: Nelle vicinanze della segnalazione")
+                title = "Attenzione: Segnalazione vicina!"
+                body = f"C'è un {incident.category} a {distance:.1f} km da te."
+                data = {"incident_id": incident.id}
+                
+                if(self.notification_adapter.send_notification(
+                    token=position_update.fcm_token,
+                    title=title,
+                    body=body,
+                    data=data)== True):
+                    print("MappaService: Notifica Inviata")
+                    
+            print("MappaService: Posizione Aggiornata")
+
+    def _calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """
+        Calcola la distanza in km tra due punti GPS usando la formula di Haversine.
+        """
+        R = 6371.0 # Raggio della Terra in km
+
+        dlat = math.radians(lat2 - lat1)
+        dlon = math.radians(lon2 - lon1)
+        
+        a = (math.sin(dlat / 2) * math.sin(dlat / 2) +
+             math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+             math.sin(dlon / 2) * math.sin(dlon / 2))
+        
+        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+        
+        distance = R * c
+        return distance

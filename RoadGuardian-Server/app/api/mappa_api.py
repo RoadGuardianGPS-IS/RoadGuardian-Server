@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
 from typing import List, Optional
 from services.mappa_service import MappaService # Assumendo che esista
-from schemas.mappa_schema import SegnalazioneMapDTO
+from schemas.mappa_schema import SegnalazioneMapDTO, UserPositionUpdate
 from db.connection import get_database # Assumendo che esista
 
 router = APIRouter(prefix="/mappa", tags=["Gestione Mappa"])
@@ -53,7 +53,28 @@ def get_filtered_incidents(
     """
     return service.get_filtered_incidents(tipi_incidente)
 
-"""--- Endpoint 3: Classificazione per Numero di Segnalazioni (RF_14) ---
+# --- Endpoint 3: Aggiornamento Posizione Utente (RF_XX) ---
+@router.post("/posizione", status_code=200)
+def update_user_position(
+    payload: UserPositionUpdate,
+    background_tasks: BackgroundTasks,
+    service: MappaService = Depends(get_mappa_service)
+):
+    """
+    Scopo: Riceve l'aggiornamento periodico della posizione dell'utente.
+           Verifica se ci sono segnalazioni vicine (entro 3km) e invia notifiche.
+    
+    Parametri Input:
+    - payload (UserPositionUpdate): Latitudine, Longitudine e Token FCM.
+    
+    Valore di Ritorno:
+    - 200 OK
+    """
+    # Eseguiamo la logica di controllo prossimità in background per non bloccare la risposta
+    background_tasks.add_task(service.process_user_position, payload)
+    return {"message": "Posizione aggiornata"}
+
+"""--- Endpoint 4: Classificazione per Numero di Segnalazioni (RF_14) ---
 @router.get("/classifica", response_model=List[SegnalazioneMapDTO])
 def get_incident_ranking(
     user_location: PosizioneGPS = Depends(),
