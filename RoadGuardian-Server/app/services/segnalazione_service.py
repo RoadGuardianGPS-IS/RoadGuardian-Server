@@ -24,7 +24,7 @@ class SegnalazioneService:
         Returns:
             SegnalazioneOutputDTO: Dettagli della segnalazione creata
         """
-        segnalazione_dict = report_data.dict()
+        segnalazione_dict = report_data.model_dump()
         segnalazione_dict["user_id"] = user_id
         segnalazione_data = create_segnalazione(segnalazione_dict) 
 
@@ -60,3 +60,17 @@ class SegnalazioneService:
         }
 
         return guidelines.get(incident["category"])
+
+    def create_fast_report(user_id: str, report_data: SegnalazioneInput):
+        """Crea una nuova segnalazione.
+        Args:
+            user_id (str): ID dell'utente che crea la segnalazione
+            report_data (SegnalazioneInput): Dati della segnalazione
+        Returns:
+            SegnalazioneOutputDTO: Dettagli della segnalazione creata
+        """
+        segnalazione_dict = report_data.model_dump()
+        segnalazione_dict["user_id"] = user_id
+        segnalazione_data = create_segnalazione(segnalazione_dict) 
+
+        return SegnalazioneOutputDTO(**segnalazione_data)
