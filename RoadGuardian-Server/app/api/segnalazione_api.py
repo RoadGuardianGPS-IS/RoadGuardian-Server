@@ -102,3 +102,33 @@ def delete_report(
     - 404 Not Found: Incidente inesistente.
     """
     service.delete_segnalazione(incident_id)
+
+
+@router.post(
+    "/createsegnalazioneveloce/{user_id}",
+    response_model=SegnalazioneOutputDTO,
+    status_code=status.HTTP_201_CREATED,
+    summary="Segnalazione Veloce (RF_10)"
+)
+
+def create_fast_report(
+    user_id: str,
+    input_payload: SegnalazioneInput,
+    service:SegnalazioneService=Depends(get_segnalazione_service)
+):
+    """
+    Scopo: Endpoint per l'invio di una segnalazione manuale completa.
+    
+    Parametri Input:
+    - user_id (Path Param): ID dell'utente registrato che segnala.
+    - input_payload (JSON Body): Dati della segnalazione (data, ora, coordinate GPS, gravità, categoria, descrizione, immagine).
+    
+    Valore di Ritorno:
+    - JSON (SegnalazioneOutputDTO): Dati della segnalazione creata.
+    
+    Gestione Errori:
+    - 400 Bad Request: Se dati mancanti o non validi.
+    - 401 Unauthorized: Utente non loggato/autorizzato.
+    """
+    # Il service si occuperà di controllare la presenza di GPS, data/ora e eventualmente inserirle se non presenti
+    return service.create_fast_report(user_id, input_payload)
