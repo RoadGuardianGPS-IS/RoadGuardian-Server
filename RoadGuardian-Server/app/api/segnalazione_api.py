@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
-from app.schemas.segnalazione_schema import (SegnalazioneInput,SegnalazioneOutputDTO)
-from app.db.connection import get_database
+from schemas.segnalazione_schema import SegnalazioneInput, SegnalazioneOutputDTO
+from db.connection import get_database
+from services.segnalazione_service import SegnalazioneService
 
 router = APIRouter(
     prefix="/segnalazione",
@@ -10,7 +11,6 @@ router = APIRouter(
 
 def get_segnalazione_service(db=Depends(get_database)):
     """Factory method per Dependency Injection del Service"""
-    from app.services.segnalazione_service import SegnalazioneService
     return SegnalazioneService(db)
 
 
@@ -23,7 +23,7 @@ def get_segnalazione_service(db=Depends(get_database)):
 def create_report(
     user_id: str,
     input_payload: SegnalazioneInput,
-    service=Depends(get_segnalazione_service)
+    service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
     Scopo: Endpoint per l'invio di una segnalazione manuale completa.
@@ -47,7 +47,7 @@ def create_report(
 @router.get("/dettagli/{incident_id}", response_model=SegnalazioneOutputDTO)
 def get_incident_details(
     incident_id: str,
-    service: MappaService = Depends(get_mappa_service)
+    service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
     Scopo: Endpoint per visualizzare tutti i dettagli di una specifica segnalazione di incidente.
@@ -61,14 +61,14 @@ def get_incident_details(
     Gestione Errori:
     - 404 Not Found: Segnalazione non esistente o risolta.
     """
-    return service.get_incident_details(incident_id)
+    return service.get_segnalazione_details(incident_id)
 
 #  Visualizzazione Linee Guida (RF_05, RF_16) ---
 @router.get("/lineeguida/{incident_id}", response_model=str) # Assumendo che le linee guida siano una stringa per semplicità
 def get_incident_guidelines(
     incident_id: str,
-    service: MappaService = Depends(get_mappa_service)
-):
+    service:SegnalazioneService=Depends(get_segnalazione_service)
+ ):
     """
     Scopo: Endpoint per visualizzare le linee guida comportamentali (anche AI) per un incidente specifico.
 
@@ -87,7 +87,7 @@ def get_incident_guidelines(
 @router.delete("/{incident_id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_report(
     incident_id: str,
-    service=Depends(get_segnalazione_service)
+    service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
     Scopo: Endpoint per eliminare una segnalazione dal sistema.
