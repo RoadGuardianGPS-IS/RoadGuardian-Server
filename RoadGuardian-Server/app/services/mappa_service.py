@@ -1,8 +1,8 @@
 from typing import List
 import math
-from app.schemas.mappa_schema import SegnalazioneMapDTO, UserPositionUpdate
-from app.db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
-from app.notifications.notify_fcm_adapter import NotifyFCMAdapter
+from schemas.mappa_schema import SegnalazioneMapDTO, UserPositionUpdate
+from db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+from notifications.notify_fcm_adapter import NotifyFCMAdapter
 
 class MappaService:
     def __init__(self, db):
