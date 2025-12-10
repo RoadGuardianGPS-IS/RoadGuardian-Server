@@ -34,7 +34,7 @@ class SegnalazioneInput(BaseModel):
         description="Livello di gravità dell'incidente. Valori ammessi: 'low', 'medium', 'high'."
     )
     category: str = Field(
-        ..., 
+        'incidente stradale', 
         description="Categoria dell'incidente (es. 'incidente stradale', 'tamponamento', 'collisione laterale').",
         min_length=1,
         max_length=50
