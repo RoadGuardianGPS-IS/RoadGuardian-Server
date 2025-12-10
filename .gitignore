@@ -48,6 +48,10 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
+
+# Firebase Credentials
+firebase_credentials.json
+
 .pytest_cache/
 cover/
 
