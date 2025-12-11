@@ -154,6 +154,12 @@ class ProfiloUtenteService:
         if not existing_user:
             raise HTTPException(status_code=404, detail="Utente non trovato")
 
+        existing_user = get_user_by_email(user_dict["email"])
+        if not existing_user:
+            raise HTTPException(status_code=404, detail="Utente non trovato")
+        # Verifica se l'utente è stato cacellato
+        if existing_user.get("is_active") == False:
+            raise HTTPException(status_code=403, detail="Profilo utente disabilitato")
         # Verifica della password
         if existing_user["password"] != hashed_password:
             raise HTTPException(status_code=401, detail="Password errata")
