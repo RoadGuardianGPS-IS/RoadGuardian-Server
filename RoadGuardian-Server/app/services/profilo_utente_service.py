@@ -68,10 +68,10 @@ class ProfiloUtenteService:
 
         user_dict = input_payload.model_dump()
 
-        # Controllo unicità email
-        #existing = get_user_by_email(user_dict["email"])
-        #if existing:
-        #    raise HTTPException(status_code=400, detail="Email già registrata")
+        #Controllo unicità email
+        existing = get_user_by_email(user_dict["email"])
+        if existing:
+            raise HTTPException(status_code=400, detail="Email già registrata")
 
 
         hashed = self.hash_password(user_dict["password"])
