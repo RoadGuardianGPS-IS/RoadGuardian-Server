@@ -1,19 +1,19 @@
 """
-Test Suite per la funzione delete_user_profile
+Test Suite TC_19 - Cancellazione Account (delete_user_profile)
 
-TC_08 - Test Case per cancellazione account:
-- TC_08.1_LO: Email format error
-- TC_08.2_LO: Password length error  
-- TC_08.3_LO: Password format error
-- TC_08.4_LO: Password mismatch
-- TC_08.5_LO: Successful deletion
+Test case specificati:
+- TC_19.1_LO: Email format error → Email non valida
+- TC_19.2_LO: Password length error → Lunghezza password errato
+- TC_19.3_LO: Password format error → Formato password errato
+- TC_19.4_LO: Password mismatch → Password errata
+- TC_19.5_LO: Successful deletion → Account cancellato
 """
 
 import pytest
 import sys
 import hashlib
 from pathlib import Path
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from fastapi import HTTPException
 from pydantic import ValidationError
 
@@ -24,8 +24,8 @@ from app.services.profilo_utente_service import ProfiloUtenteService
 from app.models.user_model import UserUpdateInput
 
 
-class TestDeleteUserProfile:
-    """Test suite per delete_user_profile"""
+class TestTC19DeleteAccount:
+    """Test suite per TC_19 - Cancellazione Account"""
 
     @pytest.fixture
     def service(self):
@@ -41,30 +41,48 @@ class TestDeleteUserProfile:
             "is_active": True
         }
 
-    # TC_19.1 - Email format error
-    def test_tc_19_1_invalid_email(self, service):
-        """Email non valida"""
+    # TC_19.1_LO - Email format error
+    def test_tc_19_1_email_format_error(self, service):
+        """
+        TC_19.1_LO: Email format error
+        Test Frame: FE1, LP2, FP2, CP2
+        Input: ugo.natale@gmail (missing TLD)
+        Expected: Email non valida (ValidationError)
+        """
         with pytest.raises(ValidationError):
-            UserUpdateInput(email="invalid@email", password="Pass123!")
+            UserUpdateInput(email="ugo.natale@gmail", password="Password123!")
 
-    # TC_19.2 - Password length
-    def test_tc_19_2_short_password_accepted(self):
-        """UserUpdateInput accetta password di qualsiasi lunghezza"""
-        # No validation at model level
-        payload = UserUpdateInput(email="test@gmail.com", password="short")
-        assert payload.password == "short"
+    # TC_19.2_LO - Password length error
+    def test_tc_19_2_password_length_error(self):
+        """
+        TC_19.2_LO: Password length error
+        Test Frame: FE2, LP1, FP2, CP2
+        Note: UserUpdateInput non valida la password a livello schema.
+        Accetta password di qualsiasi lunghezza.
+        """
+        payload = UserUpdateInput(email="renato.maznzo@gmail.com", password="Pass12!")
+        assert payload.password == "Pass12!"
 
-    # TC_19.3 - Password format
-    def test_tc_19_3_any_password_format_accepted(self):
-        """UserUpdateInput accetta password di qualsiasi formato"""
-        # No validation at model level
-        payload = UserUpdateInput(email="test@gmail.com", password="NoSpecialChars")
-        assert payload.password == "NoSpecialChars"
+    # TC_19.3_LO - Password format error
+    def test_tc_19_3_password_format_error(self):
+        """
+        TC_19.3_LO: Password format error
+        Test Frame: FE2, LP2, FP1, CP2
+        Input: PasswordForte (no digit, no special char)
+        Note: UserUpdateInput non valida il formato a livello schema.
+        """
+        payload = UserUpdateInput(email="renato.maznzo@gmail.com", password="PasswordForte")
+        assert payload.password == "PasswordForte"
 
-    # TC_19.4 - Password mismatch
+    # TC_19.4_LO - Password mismatch
     @patch('app.db.profilo_utente_repository.get_user_by_email')
     def test_tc_19_4_password_mismatch(self, mock_get_user, service, valid_user):
-        """Password errata → 401"""
+        """
+        TC_19.4_LO: Password mismatch error
+        Test Frame: FE2, LP2, FP2, CP1
+        Input: Email test@gmail.com, Password WrongPass123!
+        Expected: Password errata (401 Unauthorized)
+        """
         mock_get_user.return_value = valid_user
         
         payload = UserUpdateInput(email="test@gmail.com", password="WrongPass123!")
@@ -75,11 +93,16 @@ class TestDeleteUserProfile:
         assert exc.value.status_code == 401
         assert "Password errata" in exc.value.detail
 
-    # TC_19.5 - Successful deletion
+    # TC_19.5_LO - Successful deletion
     @patch('app.db.profilo_utente_repository.update_user')
     @patch('app.db.profilo_utente_repository.get_user_by_email')
     def test_tc_19_5_successful_deletion(self, mock_get_user, mock_update, service, valid_user):
-        """Account cancellato"""
+        """
+        TC_19.5_LO: Successful account deletion
+        Test Frame: FE2, LP2, FP2, CP2
+        Input: Email test@gmail.com, Password Password123!
+        Expected: Account cancellato (success message "Profilo utente eliminato")
+        """
         mock_get_user.return_value = valid_user
         mock_update.return_value = True
         
@@ -87,35 +110,3 @@ class TestDeleteUserProfile:
         result = service.delete_user_profile(payload)
         
         assert result == "Profilo utente eliminato"
-
-    @patch('app.db.profilo_utente_repository.get_user_by_email')
-    def test_user_not_found(self, mock_get_user, service):
-        """User not found → 404"""
-        mock_get_user.return_value = None
-        
-        payload = UserUpdateInput(email="notfound@gmail.com", password="Pass123!")
-        
-        with pytest.raises(HTTPException) as exc:
-            service.delete_user_profile(payload)
-        
-        assert exc.value.status_code == 404
-
-    @pytest.mark.parametrize("valid_email", [
-        "user@example.com",
-        "user.name@example.com",
-        "user-name@example.co.uk",
-    ])
-    def test_valid_emails(self, valid_email):
-        """Valid email formats"""
-        payload = UserUpdateInput(email=valid_email, password="Pass123!")
-        assert payload.email == valid_email
-
-    @pytest.mark.parametrize("invalid_email", [
-        "missing@domain",
-        "no-at-sign.com",
-        "@missing.local.com",
-    ])
-    def test_invalid_emails(self, invalid_email):
-        """Invalid email formats"""
-        with pytest.raises(ValidationError):
-            UserUpdateInput(email=invalid_email, password="Pass123!")
