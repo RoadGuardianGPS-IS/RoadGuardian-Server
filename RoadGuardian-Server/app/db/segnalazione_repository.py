@@ -1,5 +1,5 @@
 from .connection import get_database
-from ..models.incident_model import IncidentModel
+from models.incident_model import IncidentModel
 from bson import ObjectId
 from pymongo import ReturnDocument
 import datetime

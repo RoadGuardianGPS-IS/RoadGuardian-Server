@@ -1,5 +1,5 @@
 from typing import List
-from app.db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+from db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
 
 class MappaSegnalazioneFacade:
     """
