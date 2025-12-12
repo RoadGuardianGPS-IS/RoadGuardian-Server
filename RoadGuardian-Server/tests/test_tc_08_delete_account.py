@@ -1,12 +1,12 @@
 """
 Test Suite per la funzione delete_user_profile
 
-TC_19 - Test Case per cancellazione account:
-- TC_19.1_LO: Email format error
-- TC_19.2_LO: Password length error  
-- TC_19.3_LO: Password format error
-- TC_19.4_LO: Password mismatch
-- TC_19.5_LO: Successful deletion
+TC_08 - Test Case per cancellazione account:
+- TC_08.1_LO: Email format error
+- TC_08.2_LO: Password length error  
+- TC_08.3_LO: Password format error
+- TC_08.4_LO: Password mismatch
+- TC_08.5_LO: Successful deletion
 """
 
 import pytest
