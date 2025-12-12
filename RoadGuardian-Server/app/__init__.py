@@ -1,6 +1,6 @@
 from datetime import date, time, datetime
-from models.incident_model import IncidentModel
-import db.segnalazione_repository as repo
+from .models.incident_model import IncidentModel
+from .db import segnalazione_repository as repo
 
 #Codice di test dell'inizializzazione a DB delle segnalazioni, e di conseguenza codice che si aspetta il DB in entrata.
 

@@ -1,21 +1,23 @@
 from typing import List
 import math
 from schemas.mappa_schema import SegnalazioneMapDTO, UserPositionUpdate
-from db.segnalazione_repository import get_segnalazione_by_status, get_segnalazione_by_category
+from services.mappa_segnalazione_facade import MappaSegnalazioneFacade
 from notifications.notify_fcm_adapter import NotifyFCMAdapter
 
 class MappaService:
     def __init__(self, db):
         self.db = db
         self.notification_adapter = NotifyFCMAdapter()
+        # Iniezione del Facade
+        self.segnalazione_facade = MappaSegnalazioneFacade()
 
     def get_active_incidents(self) -> List[SegnalazioneMapDTO]:
         """Recupera tutte le segnalazioni attive.
         Returns:
             List[SegnalazioneMapDTO]: Lista di segnalazioni attive, formattate per la mappa
         """
-        # Recupera tutte le segnalazioni attive dal repository
-        all_segnalazioni = get_segnalazione_by_status(True)
+        # Recupera tutte le segnalazioni attive TRAMITE IL FACADE
+        all_segnalazioni = self.segnalazione_facade.get_segnalazioni_attive_per_mappa()
         
         result = []
         for segnalazione in all_segnalazioni:
@@ -37,7 +39,8 @@ class MappaService:
         if( tipi_incidente is None or len(tipi_incidente) == 0):
             return self.get_active_incidents()
         for tipo in tipi_incidente:
-            segnalazioni_by_category = get_segnalazione_by_category(tipo)
+            # Usa il Facade invece della chiamata diretta al repository
+            segnalazioni_by_category = self.segnalazione_facade.get_segnalazioni_per_categoria(tipo)
             # Aggiungi le segnalazioni trovate alla lista dei risultati e li trasforma in SegnalazioneMapDTO
             for segnalazione in segnalazioni_by_category:
                     # Converte ObjectId di MongoDB in stringa per Pydantic
