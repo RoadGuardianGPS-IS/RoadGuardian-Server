@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from datetime import date, time, datetime
 from typing import Optional, Dict, Literal
 
@@ -9,6 +9,12 @@ class SegnalazioneInput(BaseModel):
     Contiene solo i dati forniti dal client.
     Viene utilizzata dall'API per validare i dati in ingresso.
     """
+    user_id: Optional[str] = Field(
+        None,
+        description="Identificativo univoco dell'utente.",
+        min_length=1,
+        max_length=24
+    )
     incident_date: Optional[date] = Field(
         default_factory=date.today, 
         description="Data in cui è avvenuto l'incidente (formato YYYY-MM-DD). Se non fornita, viene usata la data corrente del Server."
@@ -29,9 +35,9 @@ class SegnalazioneInput(BaseModel):
         ge=-90.0, 
         le=90.0
     )
-    seriousness: Literal['low', 'medium', 'high'] = Field(
+    seriousness: Literal['high'] = Field(
         'high', 
-        description="Livello di gravità dell'incidente. Valori ammessi: 'low', 'medium', 'high'."
+        description="Livello di gravità dell'incidente. Valore ammesso: 'high'."
     )
     category: str = Field(
         'incidente stradale', 
@@ -48,6 +54,22 @@ class SegnalazioneInput(BaseModel):
         None, 
         description="URL opzionale di un'immagine allegata alla segnalazione."
     )
+
+    @field_validator('incident_date')
+    @classmethod
+    def validate_incident_date(cls, v):
+        """Validate that incident_date year is >= 2025"""
+        if v is not None and v.year < 2025:
+            raise ValueError('incident_date year must be >= 2025')
+        return v
+
+    @field_validator('incident_time')
+    @classmethod
+    def validate_incident_time(cls, v):
+        """Validate incident_time format - should be a valid time object"""
+        if v is not None and not isinstance(v, time):
+            raise ValueError('incident_time must be a valid time object in format HH:MM:SS')
+        return v
 
     model_config = ConfigDict(
         json_schema_extra={
