@@ -3,9 +3,9 @@ from typing import Optional, Literal, Any
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 class IncidentModel(BaseModel):
-    """
-    Modello che rappresenta la struttura dati interna di una segnalazione nel database.
-    Include la logica di conversione per MongoDB.
+    """Rappresenta una segnalazione e gestisce conversioni per MongoDB.
+
+    Descrizione: Modello interno per segnalazioni con helper per MongoDB.
     """
     id: Optional[str] = Field(default=None, alias="_id")
     user_id: str #id dell'utente nel db
@@ -22,10 +22,19 @@ class IncidentModel(BaseModel):
     @model_validator(mode='before') #Dice a Pydantic di eseguire questa funzione PRIMA di provare a validare i tipi dei campi in maniera automatica, il metodo non dovrà essere chiamato manualmente.
     @classmethod
     def split_datetime(cls, data: Any) -> Any:
-        """
-        Validatore che gestisce la lettura da MongoDB.
-        Se trova un campo 'incident_date' che è un datetime completo (data+ora),
-        lo separa automaticamente in 'incident_date' (solo data) e 'incident_time' (solo ora).
+        """Scopo: Normalizza i dati in ingresso letti da MongoDB separando
+        un `datetime` unificato in `incident_date` (date) e `incident_time` (time).
+
+        Parametri:
+        - data (Any): Dizionario raw proveniente da MongoDB o payload utente.
+
+        Valore di ritorno:
+        - Any: Dizionario modificato con campi `incident_date` e `incident_time` separati
+            (se applicabile). Mantiene altri campi invariati.
+
+        Eccezioni:
+        - None specificate: eventuali eccezioni derivano da input non-dizionari
+            e vengono propagate (TypeError se non dict).
         """
         if isinstance(data, dict):
             # Gestione _id -> id
@@ -42,9 +51,19 @@ class IncidentModel(BaseModel):
         return data
 
     def to_mongo(self) -> dict:
-        """
-        Converte il modello in un dizionario compatibile con MongoDB.
-        Combina data e ora in un unico oggetto datetime per una migliore gestione delle query temporali.
+        """Scopo: Serializzare l'istanza in un dizionario compatibile con MongoDB.
+
+        Parametri:
+        - self: Istanza di `IncidentModel` contenente data e ora separate.
+
+        Valore di ritorno:
+        - dict: Dizionario pronto per l'inserimento in MongoDB. Combina
+            `incident_date` e `incident_time` in un unico `datetime` sotto la chiave
+            `incident_date` e rimuove `incident_time` se presente.
+
+        Eccezioni:
+        - TypeError: se `incident_date` o `incident_time` non sono tipi compatibili
+            per `datetime.combine`.
         """
         data = self.model_dump(exclude={"id"})
         # print(f"Prova{type(data)}") # Debug: Controlla il tipo di 'data'
@@ -54,7 +73,7 @@ class IncidentModel(BaseModel):
             # Rimuove il campo time separato, mantenendo solo il datetime combinato
             if 'incident_time' in data:
                 del data['incident_time']
-                
+
         return data
 
     model_config = ConfigDict(

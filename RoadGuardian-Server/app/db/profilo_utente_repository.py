@@ -10,7 +10,19 @@ db = get_database()
 user_collection = db["utenti"]  # "utenti" è il nome della collection che vedrai su Compass
 
 def create_user(user: UserModel) -> UserModel:
-    """Inserisce un utente nel DB"""
+    """
+    Scopo: Inserisce un nuovo utente nella collection `utenti` del DB Mongo.
+
+    Parametri:
+    - user (UserModel): Istanza Pydantic contenente i campi dell'utente.
+
+    Valore di ritorno:
+    - UserModel: La stessa istanza `user` con il campo `id` popolato dall'ID Mongo.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se l'inserimento fallisce per errori DB.
+    - TypeError/ValueError: se il modello non è serializzabile correttamente.
+    """
     user_dict = user.model_dump(by_alias=True, exclude={"id"}) # Escludiamo ID perché lo crea Mongo
     result = user_collection.insert_one(user_dict)
     
@@ -19,12 +31,35 @@ def create_user(user: UserModel) -> UserModel:
     return user
 
 def get_user_by_email(email: str) -> dict | None:
-    """Cerca un utente per email"""
+    """
+    Scopo: Recuperare un documento utente cercando per campo `email`.
+
+    Parametri:
+    - email (str): Indirizzo email da cercare.
+
+    Valore di ritorno:
+    - dict | None: Dizionario del documento utente se trovato, altrimenti None.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query al DB fallisce.
+    """
     # Restituisce un dizionario grezzo (o None), il Service lo convertirà in Modello se serve
     return user_collection.find_one({"email": email})
 
 def get_user_by_id(user_id: str) -> dict | None:
-    """Cerca un utente per ID"""
+    """
+    Scopo: Recuperare un documento utente dato il suo ID Mongo.
+
+    Parametri:
+    - user_id (str): ID dell'utente in formato stringa (hex di ObjectId).
+
+    Valore di ritorno:
+    - dict | None: Dizionario del documento utente se trovato, altrimenti None.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `user_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nella query.
+    """
     try:
         oid = ObjectId(user_id)
         return user_collection.find_one({"_id": oid})
@@ -32,12 +67,36 @@ def get_user_by_id(user_id: str) -> dict | None:
         return None
     
 def get_user_by_num_tel(num_tel: PhoneNumber) -> dict | None:
-    """Cerca un utente per numero di telefono"""
+    """
+    Scopo: Recuperare un documento utente tramite il numero di telefono.
+
+    Parametri:
+    - num_tel (PhoneNumber): Numero telefonico (oggetto PhoneNumber o stringa compatibile).
+
+    Valore di ritorno:
+    - dict | None: Dizionario del documento utente se trovato, altrimenti None.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query al DB fallisce.
+    """
     # restituisce un dizionario grezzo (o none), il service lo convertirà in Modello se serve
     return user_collection.find_one({"num_tel": str(num_tel)})
 
 def update_num_tel(user_id: str, new_phone: str) -> bool:
-    #Aggiorna il numero di telefono
+    """
+    Scopo: Aggiornare il numero di telefono di un utente esistente.
+
+    Parametri:
+    - user_id (str): ID dell'utente come stringa.
+    - new_phone (str): Nuovo numero di telefono da impostare (stringa).
+
+    Valore di ritorno:
+    - bool: True se l'aggiornamento ha modificato il documento, False altrimenti.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `user_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nella scrittura sul DB.
+    """
 
     try:
         oid = ObjectId(user_id)
@@ -52,7 +111,20 @@ def update_num_tel(user_id: str, new_phone: str) -> bool:
         return False
     
 def update_email(user_id: str, new_email: str) -> bool:
-    #Aggiorna l'email dell'utente.
+    """
+    Scopo: Aggiornare l'indirizzo email di un utente.
+
+    Parametri:
+    - user_id (str): ID dell'utente come stringa.
+    - new_email (str): Nuova email da impostare.
+
+    Valore di ritorno:
+    - bool: True se l'aggiornamento ha avuto effetto, False altrimenti.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `user_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nella scrittura sul DB.
+    """
 
     try:
         oid = ObjectId(user_id)
@@ -67,9 +139,20 @@ def update_email(user_id: str, new_email: str) -> bool:
         return False
     
 def update_password(user_id: str, new_password_hash: str) -> bool:
-    
-    #Aggiorna la password.
-    #ATTENZIONE: Questa funzione si aspetta di ricevere GIA' l'hash della password, non la password in chiaro.
+    """
+    Scopo: Aggiornare la password dell'utente (richiede l'hash già calcolato).
+
+    Parametri:
+    - user_id (str): ID dell'utente come stringa.
+    - new_password_hash (str): Hash della nuova password.
+
+    Valore di ritorno:
+    - bool: True se l'aggiornamento ha modificato il documento, False altrimenti.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `user_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nella scrittura sul DB.
+    """
     
     try:
         oid = ObjectId(user_id)
@@ -84,7 +167,20 @@ def update_password(user_id: str, new_password_hash: str) -> bool:
         return False
     
 def update_user(user_id: str, fields_to_update: Dict[str, any]) -> dict | None:
-    """Aggiorna i campi specificati di un utente"""
+    """
+    Scopo: Aggiornare i campi specificati di un utente e restituire il documento aggiornato.
+
+    Parametri:
+    - user_id (str): ID dell'utente come stringa.
+    - fields_to_update (Dict[str, any]): Dizionario dei campi da aggiornare e relativi valori.
+
+    Valore di ritorno:
+    - dict | None: Documento aggiornato (dizionario) se l'operazione ha successo, altrimenti None.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `user_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nella query/aggiornamento.
+    """
     try:
         oid = ObjectId(user_id)
         result = user_collection.find_one_and_update(

@@ -9,7 +9,18 @@ db = get_database()
 segnalazione_collection = db["segnalazioni"]  # "segnalazioni" è il nome della collection che vedrai su Compass
 
 def create_segnalazione(segnalazione: IncidentModel) -> dict:
-    """Inserisce una segnalazione nel DB"""
+    """
+    Scopo: Inserisce una segnalazione nella collection `segnalazioni` del DB.
+
+    Parametri:
+    - segnalazione (IncidentModel): Istanza del modello segnalazione.
+
+    Valore di ritorno:
+    - dict: Dizionario della segnalazione salvata con campo `id` valorizzato.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se l'inserimento fallisce.
+    """
     segnalazione_dict = segnalazione.to_mongo() #chiama il metodo interno alla classe del model
     result = segnalazione_collection.insert_one(segnalazione_dict)
     
@@ -18,7 +29,19 @@ def create_segnalazione(segnalazione: IncidentModel) -> dict:
     return segnalazione_dict
 
 def get_segnalazione_by_id(segnalazione_id: str) -> dict | None:
-    """Cerca una segnalazione per ID"""
+    """
+    Scopo: Cercare e restituire una segnalazione per ID Mongo.
+
+    Parametri:
+    - segnalazione_id (str): ID della segnalazione in formato stringa.
+
+    Valore di ritorno:
+    - dict | None: Documento segnalazione se trovato, altrimenti None.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `segnalazione_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: errori nella query.
+    """
     try:
         oid = ObjectId(segnalazione_id)
         return segnalazione_collection.find_one({"_id": oid})
@@ -26,7 +49,19 @@ def get_segnalazione_by_id(segnalazione_id: str) -> dict | None:
         return None
     
 def get_segnalazione_by_position(incident_longitude: float, incident_latitude: float) -> dict | None:
-    """Cerca una segnalazione per posizione (longitudine e latitudine)"""
+    """
+    Scopo: Recuperare una segnalazione attiva per posizione geografica esatta.
+
+    Parametri:
+    - incident_longitude (float): Longitudine della segnalazione.
+    - incident_latitude (float): Latitudine della segnalazione.
+
+    Valore di ritorno:
+    - dict | None: Documento segnalazione se trovato, altrimenti None.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return segnalazione_collection.find_one({
         "incident_longitude": incident_longitude,
@@ -35,8 +70,19 @@ def get_segnalazione_by_position(incident_longitude: float, incident_latitude: f
     })
 
 def get_segnalazione_list_by_position(incident_longitude: float, incident_latitude: float) -> list[dict]:
-    """Cerca segnalazioni per posizione (longitudine e latitudine)
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Recuperare tutte le segnalazioni attive per una data posizione.
+
+    Parametri:
+    - incident_longitude (float): Longitudine della posizione.
+    - incident_latitude (float): Latitudine della posizione.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione corrispondenti.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return list(segnalazione_collection.find({
         "incident_longitude": incident_longitude,
@@ -45,28 +91,68 @@ def get_segnalazione_list_by_position(incident_longitude: float, incident_latitu
     }))
 
 def get_segnalazione_by_category(category: str) -> list[dict]:
-    """Cerca segnalazioni per categoria
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Ottenere segnalazioni attive appartenenti a una categoria.
+
+    Parametri:
+    - category (str): Nome della categoria di segnalazione.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione della categoria.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return list(segnalazione_collection.find({"category": category,
                                               "status": True}))
 
 def get_segnalazione_by_user(user_id: str) -> list[dict]:
-    """Cerca segnalazioni per user_id
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Recuperare tutte le segnalazioni attive create da un utente.
+
+    Parametri:
+    - user_id (str): ID dell'utente che ha creato le segnalazioni.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione dell'utente.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return list(segnalazione_collection.find({"user_id": user_id,
                                               "status": True}))
 
 def get_segnalazione_by_status(status: bool) -> list[dict]:
-    """Cerca segnalazioni per status
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Ottenere segnalazioni filtrate per stato (attivo/inattivo).
+
+    Parametri:
+    - status (bool): Stato della segnalazione (True = attiva, False = inattiva).
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione con lo stato richiesto.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return list(segnalazione_collection.find({"status": status}))
 
 def get_segnalazione_by_date(target_date: datetime.date) -> list[dict]:
-    """Cerca segnalazioni per data, dalle 00:00 alle 23:59 (min e max)
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Cercare segnalazioni per data (intervallo 00:00 - 23:59 dello stesso giorno).
+
+    Parametri:
+    - target_date (datetime.date): Data da cercare.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione trovati nella fascia di data.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
     start_dt = datetime.datetime.combine(target_date, datetime.time.min)
     end_dt = datetime.datetime.combine(target_date, datetime.time.max)
 
@@ -80,8 +166,18 @@ def get_segnalazione_by_date(target_date: datetime.date) -> list[dict]:
     
 
 def get_segnalazione_by_time(target_time: datetime.time) -> list[dict]:
-    """Cerca segnalazioni per orario
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Cercare segnalazioni per orario (confronto ora:minuti).
+
+    Parametri:
+    - target_time (datetime.time): Orario da cercare.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione corrispondenti all'orario.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
     return list(segnalazione_collection.find({
         "$expr": {
             "$and": [
@@ -95,8 +191,19 @@ def get_segnalazione_by_time(target_time: datetime.time) -> list[dict]:
     }))
 
 def get_segnalazione_by_date_and_time(target_date: datetime.date, target_time: datetime.time) -> list[dict]:
-    """Cerca segnalazioni per data e orario
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Cercare segnalazioni corrispondenti a data e orario esatti.
+
+    Parametri:
+    - target_date (datetime.date): Data da cercare.
+    - target_time (datetime.time): Orario da cercare.
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione che coincidono esattamente.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
     dt_to_find = datetime.datetime.combine(target_date, target_time)
     return list(segnalazione_collection.find({
         "incident_date": dt_to_find,
@@ -104,8 +211,18 @@ def get_segnalazione_by_date_and_time(target_date: datetime.date, target_time: d
     }))
 
 def get_segnalazione_by_seriousness(seriousness: str) -> list[dict]:
-    """Cerca segnalazioni per livello di gravità
-    ATTENZIONE: questa funzione ritorna una lista di segnalazioni"""
+    """
+    Scopo: Cercare segnalazioni per livello di gravità.
+
+    Parametri:
+    - seriousness (str): Livello di gravità (es. 'low', 'medium', 'high').
+
+    Valore di ritorno:
+    - list[dict]: Lista di documenti segnalazione che matchano il livello.
+
+    Eccezioni:
+    - pymongo.errors.PyMongoError: se la query fallisce.
+    """
 
     return list(segnalazione_collection.find({
         "seriousness": seriousness,
@@ -113,7 +230,19 @@ def get_segnalazione_by_seriousness(seriousness: str) -> list[dict]:
     }))
 
 def delete_segnalazione(segnalazione_id: str) -> bool:
-    """Elimina una segnalazione per ID"""
+    """
+    Scopo: Effettuare la cancellazione logica di una segnalazione impostando `status` a False.
+
+    Parametri:
+    - segnalazione_id (str): ID della segnalazione in formato stringa.
+
+    Valore di ritorno:
+    - bool: True se l'operazione ha modificato il documento, False altrimenti.
+
+    Eccezioni:
+    - bson.errors.InvalidId: se `segnalazione_id` non è un ObjectId valido.
+    - pymongo.errors.PyMongoError: per errori nell'aggiornamento.
+    """
 
     try:
         oid = ObjectId(segnalazione_id)
