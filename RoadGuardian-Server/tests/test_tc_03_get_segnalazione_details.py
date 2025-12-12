@@ -1,11 +1,11 @@
 """
 Test Suite per la funzione get_segnalazione_details
 
-TC_06_DPL - Test Case per visualizzazione dettagli segnalazione:
-- TC_06.1_DPL: ID non esiste
-- TC_06.2_DPL: ID esiste
+TC_03_DPL - Test Case per visualizzazione dettagli segnalazione:
+- TC_03.1_DPL: ID non esiste
+- TC_03.2_DPL: ID esiste
 
-Tabella Parametri TP_06_DPL:
+Tabella Parametri TP_03_DPL:
 
 ID:
 - Formato: "^(true|false)$"
@@ -66,14 +66,14 @@ class TestGetSegnalazioneDetails:
         }
 
     # ============================================================================
-    # TC_06.1_DPL - ID non esiste
+    # TC_03.1_DPL - ID non esiste
     # Test Frame: ID1 (Non esistente)
     # ============================================================================
 
     @patch('segnalazione_service.get_segnalazione_by_id')
-    def test_tc_06_1_dpl_id_non_esiste(self, mock_get_by_id, service):
+    def test_tc_03_1_dpl_id_non_esiste(self, mock_get_by_id, service):
         """
-        TC_06.1_DPL: ID non esiste
+        TC_03.1_DPL: ID non esiste
         Test Frame: ID1
         
         Pre-condizione: 
@@ -97,14 +97,14 @@ class TestGetSegnalazioneDetails:
         assert "Segnalazione non trovata o non attiva" in str(exc.value)
 
     # ============================================================================
-    # TC_06.2_DPL - ID esiste
+    # TC_03.2_DPL - ID esiste
     # Test Frame: ID2 (Esistente)
     # ============================================================================
 
     @patch('segnalazione_service.get_segnalazione_by_id')
-    def test_tc_06_2_dpl_id_esiste(self, mock_get_by_id, service, valid_segnalazione):
+    def test_tc_03_2_dpl_id_esiste(self, mock_get_by_id, service, valid_segnalazione):
         """
-        TC_06.2_DPL: ID esiste
+        TC_03.2_DPL: ID esiste
         Test Frame: ID2
         
         Pre-condizione: 
