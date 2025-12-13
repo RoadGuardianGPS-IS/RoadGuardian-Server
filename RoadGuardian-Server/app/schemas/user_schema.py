@@ -244,7 +244,7 @@ class UserCreateInput(UserBase):
         ...,
         min_length=8,
         max_length=25,
-        title="Password",
+        title="password",
         description="Password in chiaro (8-25 car). Maiuscola, minuscola, numero, speciale richiesti."
     )
     num_tel: str = Field(
@@ -299,6 +299,13 @@ class UserUpdateInput(BaseModel):
         None,
         title="Email",
         description="Nuova email. Opzionale. Deve essere univoca nel sistema se fornita."
+    )
+    password: Optional[str] = Field(
+        None,
+        min_length=8,
+        max_length=25,
+        title="password",
+        description="Nuova password in chiaro (8-25 car). Opzionale. Maiuscola, minuscola, numero, speciale se fornita."
     )
     num_tel: Optional[str] = Field(
         None,

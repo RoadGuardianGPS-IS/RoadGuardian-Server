@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query, status
 from services.profilo_utente_service import ProfiloUtenteService
-from models.user_model import UserCreateInput, UserModelDTO, UserUpdateInput
+from models.user_model import UserModelDTO
+from schemas.user_schema import UserUpdateInput, UserCreateInput
 from db.connection import get_database
 
 router = APIRouter(prefix="/profilo", tags=["Profilo Utente"])

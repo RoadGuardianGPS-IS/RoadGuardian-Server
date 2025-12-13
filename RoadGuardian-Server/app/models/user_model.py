@@ -3,8 +3,12 @@ from typing import Optional
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 class UserModel(BaseModel):
+    """Modello utente interno che mappa un documento utente nel DB Mongo.
+
+    Descrizione: Rappresenta i campi dell'utente salvati in MongoDB.
+    """
     # Field(alias="_id") permette di mappare il campo '_id' di Mongo su 'id' di Pydantic
-    id: Optional[str] = Field(default=None, alias="_id") 
+    id: Optional[str] = Field(default=None, alias="_id")
     email: EmailStr #forse da implementare in schema
     first_name: str
     last_name: str
@@ -15,6 +19,13 @@ class UserModel(BaseModel):
     role: str = "user" #user o admin
 
     class Config: #classe per creare admin, scritta come esempio
+        """Configurazione Pydantic per serializzazione e esempio.
+
+        Scopo: Abilitare `populate_by_name` e fornire esempio JSON per lo schema.
+        Parametri: Nessuno (modifica comportamento di Pydantic internamente).
+        Valore di ritorno: None.
+        Eccezioni: Nessuna.
+        """
         populate_by_name = True
         json_schema_extra = {
             "example": {
@@ -28,7 +39,10 @@ class UserModel(BaseModel):
         }
 
 class UserModelDTO(BaseModel):
-    """Classe per output utente al client senza password"""
+    """DTO di output utente (esclude la password) destinato al client.
+
+    Descrizione: Espone solo i campi pubblici di un utente per risposte API.
+    """
     id: Optional[str] = Field(default=None, alias="_id") 
     email: EmailStr #forse da implementare in schema
     first_name: str
@@ -40,7 +54,10 @@ class UserModelDTO(BaseModel):
     model_config = ConfigDict(populate_by_name = True)
 
 class UserModelChangeDTO(BaseModel):
-    """Classe per modifica e cancellazione utente"""
+    """DTO per aggiornamenti parziali o cancellazione logica dell'utente.
+
+    Descrizione: Campi opzionali usati per modifiche del profilo utente.
+    """
     email: Optional[EmailStr] #forse da implementare in schema
     first_name: Optional[str]
     last_name: Optional[str]
@@ -50,21 +67,3 @@ class UserModelChangeDTO(BaseModel):
     role: str = "user" #user o admin
 
     model_config = ConfigDict(populate_by_name = True)
-
-
-class UserCreateInput(BaseModel):
-    """Modello per la creazione (Input dal client - tutti obbligatori)"""
-    first_name: str
-    last_name: str
-    email: EmailStr
-    password: str  # Password in chiaro inserita dall'utente
-    num_tel: PhoneNumber
-
-
-class UserUpdateInput(BaseModel):
-    """Modello per l'AGGIORNAMENTO (Input dal client - tutti opzionali)"""
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    password: Optional[str] = None
-    num_tel: Optional[PhoneNumber] = None

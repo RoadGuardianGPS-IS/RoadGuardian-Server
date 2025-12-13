@@ -1,6 +1,6 @@
-from schemas.user_schema import EmailUpdateSchema, PhoneUpdateSchema, PasswordUpdateSchema
+from schemas.user_schema import EmailUpdateSchema, PhoneUpdateSchema, PasswordUpdateSchema, UserCreateInput, UserUpdateInput
 from db.profilo_utente_repository import get_user_by_email, update_email, update_num_tel, update_password, create_user, update_user
-from models.user_model import UserCreateInput, UserModel, UserModelDTO, UserUpdateInput
+from models.user_model import UserModel, UserModelDTO
 from fastapi import HTTPException
 import hashlib
 
