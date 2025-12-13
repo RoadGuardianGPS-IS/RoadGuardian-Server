@@ -57,6 +57,13 @@ class ProfiloUtenteService:
         """Hasha la password"""
         return hashlib.sha256(plain_password.encode("utf-8")).hexdigest()
 
+    def clean_phone_number(self, phone_number: str) -> str:
+        """Rimuove il prefisso 'tel:' dal numero di telefono se presente."""
+        phone_str = str(phone_number)
+        if phone_str.startswith("tel:"):
+            return phone_str[4:]
+        return phone_str
+
     def validate_prefix_phone_number(self, phone_number: str) -> str:
         """Controlla e aggiunge il prefisso internazionale al numero di telefono se mancante."""
         if phone_number.startswith("+39")or phone_number.startswith("tel:"):
@@ -64,13 +71,13 @@ class ProfiloUtenteService:
         # Aggiungi prefisso internazionale italiano (+39) se manca
         return "+39" + phone_number
     
-    def create_user_profile(self, input_payload: UserCreateInput) -> UserModel:
+    def create_user_profile(self, input_payload: UserCreateInput) -> UserModelDTO:
         """Registra un nuovo utente nel sistema.
         Scopo: Valida i dati, esegue l'hash della password e persiste il nuovo utente.
         Parametri:
         - input_payload (UserCreateInput): Dati anagrafici e password.
         Valore di ritorno:
-        - UserModel: Utente creato (con password hashata).
+        - UserModelDTO: Utente creato (senza password).
         Eccezioni:
         - HTTPException: 400/422 per errori di validazione o email duplicata"""
         user_dict = input_payload.model_dump()
@@ -94,7 +101,13 @@ class ProfiloUtenteService:
 
         try:
             saved = create_user(nuovo_utente) #Salva nel DB
-            return saved
+            # Converte il risultato in DTO per restituirlo al client
+            saved_dict = saved.model_dump(by_alias=True)
+            saved_dict["_id"] = str(saved_dict["_id"])
+            # Pulizia numero di telefono (rimuove "tel:" se presente)
+            if "num_tel" in saved_dict:
+                saved_dict["num_tel"] = self.clean_phone_number(saved_dict["num_tel"])
+            return UserModelDTO(**saved_dict)
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Errore inserimento DB: {e}")
 
@@ -154,6 +167,9 @@ class ProfiloUtenteService:
 
         # Convertiamo l'ID in stringa per il DTO
         updated_dict["_id"] = str(updated_dict["_id"])
+        # Pulizia numero di telefono (rimuove "tel:" se presente)
+        if "num_tel" in updated_dict:
+            updated_dict["num_tel"] = self.clean_phone_number(updated_dict["num_tel"])
         
         # Restituzione del DTO
         return UserModelDTO(**updated_dict)
@@ -188,6 +204,9 @@ class ProfiloUtenteService:
 
         # Conversione in DTO
         existing_user["_id"] = str(existing_user["_id"])
+        # Pulizia numero di telefono (rimuove "tel:" se presente)
+        if "num_tel" in existing_user:
+            existing_user["num_tel"] = self.clean_phone_number(existing_user["num_tel"])
         return UserModelDTO(**existing_user)
     
     def delete_user_profile(self, input_payload: UserUpdateInput) -> str:

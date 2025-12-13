@@ -47,7 +47,7 @@ class UserModelDTO(BaseModel):
     email: EmailStr #forse da implementare in schema
     first_name: str
     last_name: str
-    num_tel: PhoneNumber #forse da implementare in schema
+    num_tel: str 
     is_active: bool = True #account attivo o eliminato
     role: str = "user" #user o admin
 
