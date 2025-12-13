@@ -5,14 +5,21 @@ from models.incident_model import IncidentModel
 from datetime import datetime
 
 class SegnalazioneService: 
+    """Gestisce creazione, lettura e cancellazione di segnalazioni d'incidente."""
     def __init__(self, db):
         self.db = db
     def get_segnalazione_details(self, incident_id: str) -> SegnalazioneOutputDTO:
-        """Recupera i dettagli di una segnalazione specifica.
-        Args:
-            incident_id (str): ID della segnalazione
-        Returns:
-            SegnalazioneOutputDTO: Dettagli della segnalazione
+        """
+        Scopo: Recupera i dettagli di una segnalazione attiva dato il suo ID.
+
+        Parametri:
+        - incident_id (str): Identificativo univoco della segnalazione.
+
+        Valore di ritorno:
+        - SegnalazioneOutputDTO: Dati normalizzati della segnalazione (ObjectId→str, data/ora separati).
+
+        Eccezioni:
+        - ValueError: Se la segnalazione non esiste o non è attiva.
         """
         segnalazione = get_segnalazione_by_id(incident_id)
         if not segnalazione or not segnalazione.get("status", False):
@@ -28,12 +35,19 @@ class SegnalazioneService:
         return SegnalazioneOutputDTO(**segnalazione)
 
     def create_report(self, user_id: str, report_data: SegnalazioneInput):
-        """Crea una nuova segnalazione.
-        Args:
-            user_id (str): ID dell'utente che crea la segnalazione
-            report_data (SegnalazioneInput): Dati della segnalazione
-        Returns:
-            SegnalazioneOutputDTO: Dettagli della segnalazione creata
+        """
+        Scopo: Valida, costruisce il modello e crea una nuova segnalazione manuale.
+
+        Parametri:
+        - user_id (str): ID dell'utente che effettua la segnalazione.
+        - report_data (SegnalazioneInput): Dati della segnalazione da persistere.
+
+        Valore di ritorno:
+        - SegnalazioneOutputDTO: Dati della segnalazione appena creata con campi normalizzati.
+
+        Eccezioni:
+        - ValueError: Se la validazione del modello fallisce.
+        - Exception: Eventuali eccezioni propagate dallo strato di persistenza.
         """
         segnalazione_dict = report_data.model_dump()
         segnalazione_dict["user_id"] = user_id
@@ -56,18 +70,32 @@ class SegnalazioneService:
         return SegnalazioneOutputDTO(**segnalazione_data)
     
     def delete_segnalazione(self, incident_id: str):
-        """Elimina (disattiva) una segnalazione specifica.
-        Args:
-            incident_id (str): ID della segnalazione
+        """
+        Scopo: Esegue la cancellazione/disattivazione (soft delete) della segnalazione indicata.
+
+        Parametri:
+        - incident_id (str): Identificativo della segnalazione da disattivare.
+
+        Valore di ritorno:
+        - None: Nessun valore restituito.
+
+        Eccezioni:
+        - Exception: Eventuali errori propagati dal repository durante l'operazione.
         """
         delete_segnalazione(incident_id)
 
     def get_guidelines_for_incident(self, incident_id: str) -> str:
-        """Fornisce linee guida basate sul tipo di segnalazione.
-        Args:
-            incident_id (str): ID della segnalazione
-        Returns:
-            str: Linee guida per l'utente
+        """
+        Scopo: Restituisce linee guida operative in base alla categoria della segnalazione.
+
+        Parametri:
+        - incident_id (str): Identificativo della segnalazione da cui dedurre la categoria.
+
+        Valore di ritorno:
+        - str: Testo contenente le indicazioni di comportamento.
+
+        Eccezioni:
+        - ValueError: Se la segnalazione non esiste o non è attiva.
         """
         incident = get_segnalazione_by_id(incident_id)
         if not incident or incident["status"] == False:
@@ -85,12 +113,19 @@ class SegnalazioneService:
         return guidelines.get(category, "Linee guida non disponibili per questa categoria di incidente.")
 
     def create_fast_report(self, user_id: str, report_data: SegnalazioneInput):
-        """Crea una nuova segnalazione veloce.
-        Args:
-            user_id (str): ID dell'utente che crea la segnalazione
-            report_data (SegnalazioneInput): Dati della segnalazione
-        Returns:
-            SegnalazioneOutputDTO: Dettagli della segnalazione creata
+        """
+        Scopo: Crea rapidamente una segnalazione con gli stessi controlli della creazione manuale.
+
+        Parametri:
+        - user_id (str): ID dell'utente che effettua la segnalazione veloce.
+        - report_data (SegnalazioneInput): Dati minimi della segnalazione.
+
+        Valore di ritorno:
+        - SegnalazioneOutputDTO: Dati della segnalazione creata con campi normalizzati.
+
+        Eccezioni:
+        - ValueError: Se la validazione del modello fallisce.
+        - Exception: Eventuali errori propagati dallo strato di persistenza.
         """
         segnalazione_dict = report_data.model_dump()
         segnalazione_dict["user_id"] = user_id

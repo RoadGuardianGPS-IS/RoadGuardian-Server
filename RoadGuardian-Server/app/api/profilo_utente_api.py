@@ -8,7 +8,18 @@ router = APIRouter(prefix="/profilo", tags=["Profilo Utente"])
 
 
 def get_profilo_service(db=Depends(get_database)):
-    """Factory method per Dependency Injection del Service"""
+    """
+    Scopo: Fornisce un'istanza di `ProfiloUtenteService` tramite Dependency Injection.
+
+    Parametri:
+    - db: Handle/connessione al database fornita da FastAPI.
+
+    Valore di ritorno:
+    - ProfiloUtenteService: Service per gestione profilo utente.
+
+    Eccezioni:
+    - Exception: Errori di inizializzazione del service.
+    """
     return ProfiloUtenteService(db)
 
 
@@ -18,17 +29,17 @@ def create_new_user(
         service: ProfiloUtenteService = Depends(get_profilo_service)
 ):
     """
-    Scopo: Endpoint per la registrazione di un nuovo utente nel sistema.
+    Scopo: Registra un nuovo utente e restituisce i dati pubblici dell'account.
 
-    Parametri Input:
-    - input_payload (JSON Body): Dati di registrazione (Nome, Cognome, Email, Tel, Password).
+    Parametri:
+    - input_payload (UserCreateInput): Dati anagrafici e password.
+    - service (ProfiloUtenteService): Service applicativo.
 
-    Valore di Ritorno:
-    - JSON (UserModelDTO): I dati dell'utente creato (esclusa password).
+    Valore di ritorno:
+    - UserModelDTO: Utente creato (senza password).
 
-    Gestione Errori:
-    - 400 Bad Request: Se l'email esiste giÃ  o i dati non rispettano i formati regex.
-    - 422 Validation Error: Errore automatico di Pydantic sui tipi/vincoli.
+    Eccezioni:
+    - HTTPException: 400/422 per errori di validazione o email duplicata.
     """
     return service.create_user_profile(input_payload)
 
@@ -57,17 +68,18 @@ def update_existing_user(
         service: ProfiloUtenteService = Depends(get_profilo_service)
 ):
     """
-    Scopo: Modifica i dati anagrafici di un utente specifico.
+    Scopo: Aggiorna selettivamente i dati anagrafici dell'utente.
 
-    Parametri Input:
-    - user_id (Path Param): ID dell'utente.
-    - input_payload (JSON Body): Campi da modificare (opzionali).
+    Parametri:
+    - user_id (str): Identificativo dell'utente (path).
+    - input_payload (UserUpdateInput): Campi opzionali da aggiornare (body).
+    - service (ProfiloUtenteService): Service applicativo.
 
-    Valore di Ritorno:
-    - JSON (UserModelDTO): Utente aggiornato.
+    Valore di ritorno:
+    - UserModelDTO: Dati aggiornati dell'utente.
 
-    Gestione Errori:
-    - 404 Not Found: Utente inesistente.
+    Eccezioni:
+    - HTTPException: 404 se l'utente non esiste.
     """
     return service.update_user_profile(user_id, input_payload)
 
@@ -77,16 +89,17 @@ def login(
         service: ProfiloUtenteService = Depends(get_profilo_service)
 ):
     """
-    Scopo: Effettua il login di un utente.
+    Scopo: Autentica l'utente e restituisce i dati di profilo.
 
-    Parametri Input:
-    - input_payload (JSON Body): Email e Password dell'utente.
+    Parametri:
+    - input_payload (UserUpdateInput): Credenziali (email, password).
+    - service (ProfiloUtenteService): Service applicativo.
 
-    Valore di Ritorno:
-    - JSON (UserModelDTO): Dati dell'utente loggato (esclusa password).
+    Valore di ritorno:
+    - UserModelDTO: Dati dell'utente autenticato.
 
-    Gestione Errori:
-    - 401 Unauthorized: Credenziali errate.
+    Eccezioni:
+    - HTTPException: 401 per credenziali errate.
     """
     return service.login_user(input_payload)
 
@@ -96,15 +109,16 @@ def delete_account(
         service: ProfiloUtenteService = Depends(get_profilo_service)
 ):
     """
-    Scopo: Elimina l'account di un utente specifico.
+    Scopo: Disattiva/elimina l'account utente indicato.
 
-    Parametri Input:
-    - user_id (Path Param): ID dell'utente da eliminare.
+    Parametri:
+    - input_payload (UserUpdateInput): Dati necessari all'operazione.
+    - service (ProfiloUtenteService): Service applicativo.
 
-    Valore di Ritorno:
-    - Nessun contenuto (204 No Content).
+    Valore di ritorno:
+    - str: Messaggio di conferma.
 
-    Gestione Errori:
-    - 404 Not Found: Utente inesistente.
+    Eccezioni:
+    - HTTPException: 404 se utente inesistente.
     """
     return service.delete_user_profile(input_payload)

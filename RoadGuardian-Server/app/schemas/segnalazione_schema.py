@@ -4,11 +4,7 @@ from typing import Optional, Dict, Literal
 
 
 class SegnalazioneInput(BaseModel):
-    """
-    Schema per la creazione di una nuova segnalazione.
-    Contiene solo i dati forniti dal client.
-    Viene utilizzata dall'API per validare i dati in ingresso.
-    """
+    """Input per creazione segnalazione: dati client validati e normalizzati."""
     user_id: Optional[str] = Field(
         None,
         description="Identificativo univoco dell'utente.",
@@ -58,7 +54,18 @@ class SegnalazioneInput(BaseModel):
     @field_validator('incident_date')
     @classmethod
     def validate_incident_date(cls, v):
-        """Validate that incident_date year is >= 2025"""
+        """
+        Scopo: Verifica che l'anno di `incident_date` sia ≥ 2025.
+
+        Parametri:
+        - v (date|None): Valore della data incidente.
+
+        Valore di ritorno:
+        - date|None: La data valida o None.
+
+        Eccezioni:
+        - ValueError: Se l'anno è inferiore a 2025.
+        """
         if v is not None and v.year < 2025:
             raise ValueError('incident_date year must be >= 2025')
         return v
@@ -66,7 +73,18 @@ class SegnalazioneInput(BaseModel):
     @field_validator('incident_time')
     @classmethod
     def validate_incident_time(cls, v):
-        """Validate incident_time format - should be a valid time object"""
+        """
+        Scopo: Valida che `incident_time` sia un oggetto `time` corretto.
+
+        Parametri:
+        - v (time|None): Orario dell'incidente.
+
+        Valore di ritorno:
+        - time|None: L'orario valido o None.
+
+        Eccezioni:
+        - ValueError: Se non è un oggetto `time`.
+        """
         if v is not None and not isinstance(v, time):
             raise ValueError('incident_time must be a valid time object in format HH:MM:SS')
         return v
@@ -87,11 +105,7 @@ class SegnalazioneInput(BaseModel):
     )
 
 class SegnalazioneOutputDTO(BaseModel):
-    """
-    Schema che definisce la struttura dati di una segnalazione di incidente in risposta al Client.
-    Utilizzato per la validazione e la serializzazione dei dati.
-    Viene utilizzata dall'API per restituire i dati al client.
-    """
+    """DTO risposta: dati completi segnalazione per il client, senza trasformazioni lato client."""
     id: Optional[str] = Field(
         default=None, 
         alias="_id", 
@@ -165,10 +179,16 @@ class SegnalazioneOutputDTO(BaseModel):
 
     def get_posizione_GPS(self) -> Dict[str, float]:
         """
-        Scopo: Restituisce le coordinate GPS della segnalazione in un formato strutturato.
-        Parametri: Nessuno.
-        Valore di ritorno: Dizionario con chiavi 'latitudine' e 'longitudine' contenente i valori float del campo correlato al campo chiave.
-        Eccezioni: Nessuna eccezione prevista.
+        Scopo: Restituisce coordinate GPS della segnalazione in formato strutturato.
+
+        Parametri:
+        - Nessuno.
+
+        Valore di ritorno:
+        - Dict[str, float]: Chiavi 'latitudine' e 'longitudine'.
+
+        Eccezioni:
+        - Nessuna.
         """
         return {
             "latitudine": self.incident_latitude,

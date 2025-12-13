@@ -10,7 +10,18 @@ router = APIRouter(
 
 
 def get_segnalazione_service(db=Depends(get_database)):
-    """Factory method per Dependency Injection del Service"""
+    """
+    Scopo: Fornisce un'istanza di `SegnalazioneService` tramite Dependency Injection.
+
+    Parametri:
+    - db: Handle della connessione al database risolta da FastAPI.
+
+    Valore di ritorno:
+    - SegnalazioneService: Service per gestione segnalazioni.
+
+    Eccezioni:
+    - Exception: Errori di inizializzazione del service.
+    """
     return SegnalazioneService(db)
 
 
@@ -26,18 +37,18 @@ def create_report(
     service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
-    Scopo: Endpoint per l'invio di una segnalazione manuale completa.
-    
-    Parametri Input:
-    - user_id (Path Param): ID dell'utente registrato che segnala.
-    - input_payload (JSON Body): Dati della segnalazione (data, ora, coordinate GPS, gravità, categoria, descrizione, immagine).
-    
-    Valore di Ritorno:
-    - JSON (SegnalazioneOutputDTO): Dati della segnalazione creata.
-    
-    Gestione Errori:
-    - 400 Bad Request: Se dati mancanti o non validi.
-    - 401 Unauthorized: Utente non loggato/autorizzato.
+    Scopo: Crea una segnalazione manuale e restituisce i dati risultanti.
+
+    Parametri:
+    - user_id (str): Identificativo utente (path).
+    - input_payload (SegnalazioneInput): Dati della segnalazione (body).
+    - service (SegnalazioneService): Service applicativo.
+
+    Valore di ritorno:
+    - SegnalazioneOutputDTO: Dati della segnalazione creata.
+
+    Eccezioni:
+    - HTTPException: Errori di validazione o autorizzazione tradotti in HTTP.
     """
     # Il service si occuperà di controllare la presenza di GPS, data/ora e eventualmente inserirle se non presenti
     return service.create_report(user_id, input_payload)
@@ -50,16 +61,17 @@ def get_incident_details(
     service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
-    Scopo: Endpoint per visualizzare tutti i dettagli di una specifica segnalazione di incidente.
+    Scopo: Restituisce i dettagli di una segnalazione attiva dato l'ID.
 
-    Parametri Input:
-    - incident_id (Path Param): ID univoco della segnalazione.
+    Parametri:
+    - incident_id (str): Identificativo della segnalazione (path).
+    - service (SegnalazioneService): Service applicativo.
 
-    Valore di Ritorno:
-    - JSON (SegnalazioneMapDTO): Oggetto completo con tutti i dettagli (descrizione, gravità, coordinate, ecc.).
+    Valore di ritorno:
+    - SegnalazioneOutputDTO: Dati dettagliati della segnalazione.
 
-    Gestione Errori:
-    - 404 Not Found: Segnalazione non esistente o risolta.
+    Eccezioni:
+    - HTTPException: 404 se la segnalazione non esiste/attiva.
     """
     return service.get_segnalazione_details(incident_id)
 
@@ -70,16 +82,17 @@ def get_incident_guidelines(
     service:SegnalazioneService=Depends(get_segnalazione_service)
  ):
     """
-    Scopo: Endpoint per visualizzare le linee guida comportamentali (anche AI) per un incidente specifico.
+    Scopo: Restituisce linee guida operative per l'incidente specificato.
 
-    Parametri Input:
-    - incident_id (Path Param): ID univoco della segnalazione.
+    Parametri:
+    - incident_id (str): Identificativo della segnalazione (path).
+    - service (SegnalazioneService): Service applicativo.
 
-    Valore di Ritorno:
-    - String: Linee guida comportamentali appropriate al tipo di incidente.
+    Valore di ritorno:
+    - str: Testo delle linee guida.
 
-    Gestione Errori:
-    - 404 Not Found: Incidente non esistente o linee guida non disponibili.
+    Eccezioni:
+    - HTTPException: 404 se segnalazione inesistente o non attiva.
     """
     return service.get_guidelines_for_incident(incident_id)
 
@@ -90,16 +103,17 @@ def delete_report(
     service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
-    Scopo: Endpoint per eliminare una segnalazione dal sistema.
-    
-    Parametri Input:
-    - incident_id (Path Param): ID della segnalazione da eliminare.
-    
-    Valore di Ritorno:
-    - Nessun Contenuto (204 No Content).
-    
-    Gestione Errori:
-    - 404 Not Found: Incidente inesistente.
+    Scopo: Elimina/disattiva una segnalazione indicata dal suo ID.
+
+    Parametri:
+    - incident_id (str): Identificativo della segnalazione (path).
+    - service (SegnalazioneService): Service applicativo.
+
+    Valore di ritorno:
+    - None: Risposta HTTP 204 senza contenuto.
+
+    Eccezioni:
+    - HTTPException: 404 se incidente inesistente.
     """
     service.delete_segnalazione(incident_id)
 
@@ -117,18 +131,18 @@ def create_fast_report(
     service:SegnalazioneService=Depends(get_segnalazione_service)
 ):
     """
-    Scopo: Endpoint per l'invio di una segnalazione manuale completa.
-    
-    Parametri Input:
-    - user_id (Path Param): ID dell'utente registrato che segnala.
-    - input_payload (JSON Body): Dati della segnalazione (data, ora, coordinate GPS, gravità, categoria, descrizione, immagine).
-    
-    Valore di Ritorno:
-    - JSON (SegnalazioneOutputDTO): Dati della segnalazione creata.
-    
-    Gestione Errori:
-    - 400 Bad Request: Se dati mancanti o non validi.
-    - 401 Unauthorized: Utente non loggato/autorizzato.
+    Scopo: Crea una segnalazione veloce e restituisce l'output standardizzato.
+
+    Parametri:
+    - user_id (str): Identificativo utente (path).
+    - input_payload (SegnalazioneInput): Dati minimi della segnalazione (body).
+    - service (SegnalazioneService): Service applicativo.
+
+    Valore di ritorno:
+    - SegnalazioneOutputDTO: Dati della segnalazione creata.
+
+    Eccezioni:
+    - HTTPException: Errori di validazione o autorizzazione tradotti in HTTP.
     """
     # Il service si occuperà di controllare la presenza di GPS, data/ora e eventualmente inserirle se non presenti
     return service.create_fast_report(user_id, input_payload)

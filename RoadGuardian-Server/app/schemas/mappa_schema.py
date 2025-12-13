@@ -3,10 +3,7 @@ from typing import Literal, Optional
 from datetime import date, time
 
 class PosizioneGPS(BaseModel):
-    """
-    Schema per rappresentare una posizione GPS.
-    Utilizzato come input per filtrare le segnalazioni in base alla posizione dell'utente.
-    """
+    """Rappresenta una posizione GPS per filtri e centering mappa."""
     latitudine: float = Field(
         ..., 
         description="Latitudine della posizione (valore decimale).", 
@@ -21,19 +18,13 @@ class PosizioneGPS(BaseModel):
     )
 
 class UserPositionUpdate(BaseModel):
-    """
-    Schema per l'aggiornamento della posizione dell'utente.
-    Inviato periodicamente dal client.
-    """
+    """Aggiornamento periodico posizione utente e token per notifiche."""
     latitudine: float = Field(..., ge=-90.0, le=90.0)
     longitudine: float = Field(..., ge=-180.0, le=180.0)
     fcm_token: Optional[str] = Field(None, description="Token FCM per le notifiche push.")
 
 class SegnalazioneMapDTO(BaseModel):
-    """
-    Schema ottimizzato per la visualizzazione delle segnalazioni sulla mappa.
-    Contiene solo le informazioni essenziali per il rendering dei marker.
-    """
+    """DTO essenziale per marker mappa con categoria, gravità e coordinate."""
     id: str = Field(
         ..., 
         alias="_id", 

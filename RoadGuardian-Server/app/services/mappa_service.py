@@ -5,6 +5,7 @@ from services.mappa_segnalazione_facade import MappaSegnalazioneFacade
 from notifications.notify_fcm_adapter import NotifyFCMAdapter
 
 class MappaService:
+    """Gestisce segnalazioni su mappa e notifiche di prossimità."""
     def __init__(self, db):
         self.db = db
         self.notification_adapter = NotifyFCMAdapter()
