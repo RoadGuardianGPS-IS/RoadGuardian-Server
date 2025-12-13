@@ -13,9 +13,17 @@ class MappaService:
         self.segnalazione_facade = MappaSegnalazioneFacade()
 
     def get_active_incidents(self) -> List[SegnalazioneMapDTO]:
-        """Recupera tutte le segnalazioni attive.
-        Returns:
-            List[SegnalazioneMapDTO]: Lista di segnalazioni attive, formattate per la mappa
+        """
+        Scopo: Recupera tutte le segnalazioni attive.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - List[SegnalazioneMapDTO]: Lista di segnalazioni attive, formattate per la mappa.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         # Recupera tutte le segnalazioni attive TRAMITE IL FACADE
         all_segnalazioni = self.segnalazione_facade.get_segnalazioni_attive_per_mappa()
@@ -29,11 +37,17 @@ class MappaService:
         return result
     
     def get_filtered_incidents(self, tipi_incidente: List[str]) -> List[SegnalazioneMapDTO]:
-        """Recupera segnalazioni attive filtrate per tipo di incidente.
-        Args:
-            tipi_incidente (List[str]): Tipi di incidente da filtrare
-        Returns:
-            List[SegnalazioneMapDTO]: Lista di segnalazioni filtrate
+        """
+        Scopo: Recupera segnalazioni attive filtrate per tipo di incidente.
+
+        Parametri:
+        - tipi_incidente (List[str]): Tipi di incidente da filtrare.
+
+        Valore di ritorno:
+        - List[SegnalazioneMapDTO]: Lista di segnalazioni filtrate.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         result = []
         # Per ogni tipo di incidente richiesto, recupera le segnalazioni corrispondenti
@@ -52,10 +66,16 @@ class MappaService:
 
     def process_user_position(self, position_update: UserPositionUpdate):
         """
-        Elabora l'aggiornamento della posizione dell'utente.
-        Controlla se ci sono segnalazioni attive entro 3 km e invia notifiche.
-        Args:
-            position_update (UserPositionUpdate): Dati di posizione e token FCM dell'utente
+        Scopo: Elabora l'aggiornamento della posizione dell'utente. Controlla se ci sono segnalazioni attive entro 3 km e invia notifiche.
+
+        Parametri:
+        - position_update (UserPositionUpdate): Dati di posizione e token FCM dell'utente.
+
+        Valore di ritorno:
+        - None
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         if not position_update.fcm_token:
             return # Nessun token per inviare notifiche
@@ -88,7 +108,19 @@ class MappaService:
 
     def _calculate_distance(self, lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """
-        Calcola la distanza in km tra due punti GPS usando la formula di Haversine.
+        Scopo: Calcola la distanza in km tra due punti GPS usando la formula di Haversine.
+        
+        Parametri:
+            lat1 (float): Latitudine punto 1.
+            lon1 (float): Longitudine punto 1.
+            lat2 (float): Latitudine punto 2.
+            lon2 (float): Longitudine punto 2.
+            
+        Valore di ritorno:
+            float: Distanza in km.
+            
+        Eccezioni:
+            Nessuna eccezione prevista.
         """
         R = 6371.0 # Raggio della Terra in km
 

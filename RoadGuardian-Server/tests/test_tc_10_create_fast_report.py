@@ -74,7 +74,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_1_empty_user_id(self):
-        """TC_10.1: user_id vuoto deve essere rifiutato"""
+        """
+        Scopo: Verificare che un user_id vuoto venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se l'user_id non è valido.
+        """
         with pytest.raises(ValidationError) as exc_info:
             SegnalazioneInput(
                 user_id="",
@@ -88,7 +99,18 @@ class TestCreateFastReport:
         assert len(errors) > 0
 
     def test_tc_10_2_user_id_too_long(self):
-        """TC_10.2: user_id troppo lungo (>24 caratteri) deve essere rifiutato"""
+        """
+        Scopo: Verificare che un user_id troppo lungo (>24 caratteri) venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se l'user_id è troppo lungo.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 user_id="a" * 25,  # 25 characters, exceeds max of 24
@@ -104,7 +126,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_3_invalid_date_format(self):
-        """TC_10.3: Formato data non valido (11-12-2025 invece di YYYY-MM-DD)"""
+        """
+        Scopo: Verificare che un formato data non valido venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato data è errato.
+        """
         with pytest.raises(ValidationError) as exc_info:
             SegnalazioneInput(
                 incident_date="11-12-2025",  # Wrong format
@@ -118,7 +151,18 @@ class TestCreateFastReport:
         assert any("date" in str(e).lower() for e in errors)
 
     def test_tc_10_4_year_before_2025(self):
-        """TC_10.4: Anno <2025 deve essere rifiutato"""
+        """
+        Scopo: Verificare che un anno precedente al 2025 venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se l'anno è non valido.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(1025, 12, 11),
@@ -129,7 +173,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_5_month_zero(self):
-        """TC_10.5: Mese <= 00 deve essere rifiutato"""
+        """
+        Scopo: Verificare che il mese 0 venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il mese è 0.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 0, 15),  # Mese 0
@@ -140,7 +195,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_6_month_greater_than_12(self):
-        """TC_10.6: Mese >12 deve essere rifiutato"""
+        """
+        Scopo: Verificare che un mese > 12 venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il mese è > 12.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 25, 15),  # Mese 25
@@ -151,7 +217,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_7_day_zero_february(self):
-        """TC_10.7: Giorno <= 00 per febbraio deve essere rifiutato"""
+        """
+        Scopo: Verificare che il giorno 0 per febbraio venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il giorno è 0.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 0),
@@ -162,7 +239,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_8_day_greater_than_31(self):
-        """TC_10.8: Giorno >31 deve essere rifiutato"""
+        """
+        Scopo: Verificare che un giorno > 31 venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il giorno è > 31.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 32),
@@ -173,7 +261,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_9_day_29_february(self):
-        """TC_10.9: Giorno 29 per febbraio 2025 (non bisestile) deve essere rifiutato"""
+        """
+        Scopo: Verificare che il 29 febbraio in anno non bisestile venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se la data non è valida.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 29),
@@ -188,7 +287,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_10_invalid_time_format(self):
-        """TC_10.10: Formato time non valido (25:53:00 instead di 00-23:MM:SS)"""
+        """
+        Scopo: Verificare che un formato ora non valido venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato ora è errato.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -199,7 +309,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_11_hours_negative(self):
-        """TC_10.11: Ore <00 deve essere rifiutato"""
+        """
+        Scopo: Verificare che ore negative vengano rifiutate.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se le ore sono negative.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -210,7 +331,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_12_hours_greater_than_24(self):
-        """TC_10.12: Ore >24 deve essere rifiutato"""
+        """
+        Scopo: Verificare che ore > 24 vengano rifiutate.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se le ore sono > 24.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -221,7 +353,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_13_minutes_negative(self):
-        """TC_10.13: Minuti <00 deve essere rifiutato"""
+        """
+        Scopo: Verificare che minuti negativi vengano rifiutati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se i minuti sono negativi.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -232,7 +375,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_14_minutes_greater_than_60(self):
-        """TC_10.14: Minuti >60 deve essere rifiutato"""
+        """
+        Scopo: Verificare che minuti > 60 vengano rifiutati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se i minuti sono > 60.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -243,7 +397,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_15_seconds_negative(self):
-        """TC_10.15: Secondi <00 deve essere rifiutato"""
+        """
+        Scopo: Verificare che secondi negativi vengano rifiutati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se i secondi sono negativi.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -254,7 +419,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_16_seconds_greater_than_60(self):
-        """TC_10.16: Secondi >60 deve essere rifiutato"""
+        """
+        Scopo: Verificare che secondi > 60 vengano rifiutati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se i secondi sono > 60.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -269,7 +445,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_17_invalid_longitude_format(self):
-        """TC_10.17: Formato longitude non valido (4184.901674)"""
+        """
+        Scopo: Verificare che un formato longitudine non valido venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato longitudine è errato.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -280,7 +467,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_18_longitude_less_than_minus_180(self):
-        """TC_10.18: Longitude <-180.00000 deve essere rifiutato"""
+        """
+        Scopo: Verificare che longitudine < -180 venga rifiutata.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se la longitudine è < -180.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -291,7 +489,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_19_longitude_greater_than_180(self):
-        """TC_10.19: Longitude >180.00000 deve essere rifiutato"""
+        """
+        Scopo: Verificare che longitudine > 180 venga rifiutata.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se la longitudine è > 180.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -306,7 +515,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_20_invalid_latitude_format(self):
-        """TC_10.20: Formato latitude non valido (123.495311)"""
+        """
+        Scopo: Verificare che un formato latitudine non valido venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato latitudine è errato.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -317,7 +537,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_21_latitude_less_than_minus_90(self):
-        """TC_10.21: Latitude <-90.00000 deve essere rifiutato"""
+        """
+        Scopo: Verificare che latitudine < -90 venga rifiutata.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se la latitudine è < -90.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -328,7 +559,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_22_latitude_greater_than_90(self):
-        """TC_10.22: Latitude >90.00000 deve essere rifiutato"""
+        """
+        Scopo: Verificare che latitudine > 90 venga rifiutata.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se la latitudine è > 90.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -343,7 +585,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_23_seriousness_low(self):
-        """TC_10.23: Seriousness "low" deve essere rifiutato (richiesto "high")"""
+        """
+        Scopo: Verificare che seriousness "low" venga rifiutato (richiesto "high").
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se seriousness non è "high".
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -354,7 +607,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_24_all_valid_values_2025_02(self):
-        """TC_10.24: Tutti i valori corretti devono essere accettati (Febbraio 2025)"""
+        """
+        Scopo: Verificare che tutti i valori corretti vengano accettati (Febbraio 2025).
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 2, 20),
             incident_time=time(12, 15, 2),
@@ -371,7 +635,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_25_day_zero_march(self):
-        """TC_10.25: Giorno <= 00 per marzo"""
+        """
+        Scopo: Verificare che il giorno 0 per marzo venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il giorno è 0.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 3, 0),
@@ -382,7 +657,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_26_day_greater_than_31_march(self):
-        """TC_10.26: Giorno >31 per marzo"""
+        """
+        Scopo: Verificare che un giorno > 31 per marzo venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValueError: Attesa se il giorno è > 31.
+        """
         with pytest.raises(ValueError):
             SegnalazioneInput(
                 incident_date=date(2025, 3, 33),
@@ -393,7 +679,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_27_invalid_time_format_march(self):
-        """TC_10.27: Formato time non valido per marzo"""
+        """
+        Scopo: Verificare che un formato ora non valido per marzo venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato ora è errato.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 3, 18),
@@ -404,7 +701,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_24_valid_march(self):
-        """TC_10.41: Tutti i valori corretti per marzo"""
+        """
+        Scopo: Verificare che tutti i valori corretti per marzo vengano accettati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 3, 18),
             incident_time=time(12, 15, 2),
@@ -419,7 +727,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_tc_10_42_invalid_time_april(self):
-        """TC_10.42: Formato time non valido per aprile"""
+        """
+        Scopo: Verificare che un formato ora non valido per aprile venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se il formato ora è errato.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 4, 30),
@@ -430,7 +749,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_55_seriousness_medium(self):
-        """TC_10.55: Seriousness "medium" deve essere rifiutato"""
+        """
+        Scopo: Verificare che seriousness "medium" venga rifiutato.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa se seriousness è "medium".
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 4, 30),
@@ -441,7 +771,18 @@ class TestCreateFastReport:
             )
 
     def test_tc_10_56_all_valid_values_april(self):
-        """TC_10.56: Tutti i valori corretti per aprile"""
+        """
+        Scopo: Verificare che tutti i valori corretti per aprile vengano accettati.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 4, 30),
             incident_time=time(12, 15, 2),
@@ -458,7 +799,18 @@ class TestCreateFastReport:
 
     @pytest.mark.parametrize("seriousness", ["high"])
     def test_valid_seriousness_values(self, seriousness):
-        """Test seriousness values (only high is allowed for fast report)"""
+        """
+        Scopo: Verificare i valori di seriousness validi (solo "high" per fast report).
+
+        Parametri:
+        - seriousness (str): Il valore di gravità da testare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 2, 20),
             incident_time=time(12, 15, 2),
@@ -470,7 +822,18 @@ class TestCreateFastReport:
 
     @pytest.mark.parametrize("seriousness", ["low", "medium", "invalid"])
     def test_invalid_seriousness_values(self, seriousness):
-        """Test invalid seriousness values"""
+        """
+        Scopo: Verificare i valori di seriousness non validi.
+
+        Parametri:
+        - seriousness (str): Il valore di gravità da testare.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa per valori non validi.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -491,7 +854,19 @@ class TestCreateFastReport:
         (41.901674, 12.495311)  # Rome
     ])
     def test_valid_gps_coordinates(self, lon, lat):
-        """Test valid GPS coordinate boundaries"""
+        """
+        Scopo: Verificare i limiti validi delle coordinate GPS.
+
+        Parametri:
+        - lon (float): Longitudine.
+        - lat (float): Latitudine.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 2, 20),
             incident_time=time(12, 15, 2),
@@ -509,7 +884,19 @@ class TestCreateFastReport:
         (0.0, 90.001),        # Latitude too high
     ])
     def test_invalid_gps_coordinates(self, lon, lat):
-        """Test invalid GPS coordinate boundaries"""
+        """
+        Scopo: Verificare i limiti non validi delle coordinate GPS.
+
+        Parametri:
+        - lon (float): Longitudine.
+        - lat (float): Latitudine.
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - ValidationError: Attesa per coordinate fuori range.
+        """
         with pytest.raises(ValidationError):
             SegnalazioneInput(
                 incident_date=date(2025, 2, 20),
@@ -524,7 +911,18 @@ class TestCreateFastReport:
     # ============================================================================
 
     def test_leap_year_february_29_2024(self):
-        """Test leap year (2024 is a leap year)"""
+        """
+        Scopo: Verificare il comportamento con anno bisestile (2024).
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 3, 1),  # Use 2025-03-01 instead since 2025 is not leap
             incident_time=time(12, 15, 2),
@@ -535,7 +933,18 @@ class TestCreateFastReport:
         assert payload.incident_date == date(2025, 3, 1)
 
     def test_max_time_values(self):
-        """Test maximum valid time values"""
+        """
+        Scopo: Verificare i valori massimi validi per l'ora.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 2, 20),
             incident_time=time(23, 59, 59),  # Max valid time
@@ -546,7 +955,18 @@ class TestCreateFastReport:
         assert payload.incident_time == time(23, 59, 59)
 
     def test_min_time_values(self):
-        """Test minimum valid time values"""
+        """
+        Scopo: Verificare i valori minimi validi per l'ora.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - Nessuno
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         payload = SegnalazioneInput(
             incident_date=date(2025, 2, 20),
             incident_time=time(0, 0, 0),  # Min valid time

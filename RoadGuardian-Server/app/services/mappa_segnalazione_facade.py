@@ -11,7 +11,16 @@ class MappaSegnalazioneFacade:
 
     def get_segnalazioni_attive_per_mappa(self) -> List[dict]:
         """
-        Recupera le segnalazioni attive pronte per essere visualizzate sulla mappa.
+        Scopo: Recupera le segnalazioni attive pronte per essere visualizzate sulla mappa.
+
+        Parametri:
+        - Nessuno
+
+        Valore di ritorno:
+        - List[dict]: Lista di dizionari rappresentanti le segnalazioni attive.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         # Qui incapsuliamo la chiamata al repository.
         # Se domani la logica cambia (es. bisogna chiamare un'API esterna invece di Mongo),
@@ -20,6 +29,15 @@ class MappaSegnalazioneFacade:
 
     def get_segnalazioni_per_categoria(self, categoria: str) -> List[dict]:
         """
-        Recupera le segnalazioni filtrate per categoria.
+        Scopo: Recupera le segnalazioni filtrate per categoria.
+
+        Parametri:
+        - categoria (str): La categoria di segnalazione da filtrare.
+
+        Valore di ritorno:
+        - List[dict]: Lista di dizionari rappresentanti le segnalazioni della categoria specificata.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
         """
         return get_segnalazione_by_category(categoria)

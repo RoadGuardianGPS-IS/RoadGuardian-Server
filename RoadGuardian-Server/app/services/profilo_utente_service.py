@@ -10,6 +10,19 @@ class ProfiloUtenteService:
         self.db = db
     
     def change_email_logic(self,user_id: str, email_input: str) -> str:
+        """
+        Scopo: Gestisce la logica di business per il cambio email dell'utente.
+
+        Parametri:
+        - user_id (str): L'ID univoco dell'utente.
+        - email_input (str): La nuova email da impostare.
+
+        Valore di ritorno:
+        - str: Messaggio di successo ("Email aggiornata") o di errore.
+
+        Eccezioni:
+        - Exception: Cattura eccezioni di validazione schema e restituisce messaggio di errore formattato.
+        """
         try:
             #se l'email e sbagliata, questa riga fara errore
             valid_data = EmailUpdateSchema(new_email=email_input)
@@ -26,6 +39,19 @@ class ProfiloUtenteService:
             return f"bloccato dallo schema: {error_msg}"
         
     def change_password_logic(self, user_id: str, plain_password: str) -> str:
+        """
+        Scopo: Gestisce la logica di business per il cambio password dell'utente.
+
+        Parametri:
+        - user_id (str): L'ID univoco dell'utente.
+        - plain_password (str): La nuova password in chiaro.
+
+        Valore di ritorno:
+        - str: Messaggio di successo ("password aggiornata") o di errore.
+
+        Eccezioni:
+        - Exception: Cattura eccezioni di validazione schema e restituisce messaggio generico.
+        """
         try:
             valid_data = PasswordUpdateSchema(new_password=plain_password)
 
@@ -41,6 +67,19 @@ class ProfiloUtenteService:
             return "bloccato dallo schema"
         
     def change_phone_logic(self, user_id: str, phone_input: str) -> str:
+        """
+        Scopo: Gestisce la logica di business per il cambio numero di telefono dell'utente.
+
+        Parametri:
+        - user_id (str): L'ID univoco dell'utente.
+        - phone_input (str): Il nuovo numero di telefono.
+
+        Valore di ritorno:
+        - str: Messaggio di successo ("numero telefono aggiornato") o di errore.
+
+        Eccezioni:
+        - Exception: Cattura eccezioni di validazione schema e restituisce messaggio generico.
+        """
         try:
             valid_data = PhoneUpdateSchema(new_phone=phone_input)
 
@@ -54,32 +93,70 @@ class ProfiloUtenteService:
             return "bloccato dallo schema"
     
     def hash_password(self, plain_password: str) -> str:
-        """Hasha la password"""
+        """
+        Scopo: Calcola l'hash SHA-256 della password.
+
+        Parametri:
+        - plain_password (str): La password in chiaro.
+
+        Valore di ritorno:
+        - str: L'hash esadecimale della password.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         return hashlib.sha256(plain_password.encode("utf-8")).hexdigest()
 
     def clean_phone_number(self, phone_number: str) -> str:
-        """Rimuove il prefisso 'tel:' dal numero di telefono se presente."""
+        """
+        Scopo: Rimuove il prefisso 'tel:' dal numero di telefono se presente.
+
+        Parametri:
+        - phone_number (str): Il numero di telefono da pulire.
+
+        Valore di ritorno:
+        - str: Il numero di telefono pulito.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         phone_str = str(phone_number)
         if phone_str.startswith("tel:"):
             return phone_str[4:]
         return phone_str
 
     def validate_prefix_phone_number(self, phone_number: str) -> str:
-        """Controlla e aggiunge il prefisso internazionale al numero di telefono se mancante."""
+        """
+        Scopo: Controlla e aggiunge il prefisso internazionale al numero di telefono se mancante.
+
+        Parametri:
+        - phone_number (str): Il numero di telefono da validare.
+
+        Valore di ritorno:
+        - str: Il numero di telefono normalizzato con prefisso +39 se necessario.
+
+        Eccezioni:
+        - Nessuna eccezione prevista.
+        """
         if phone_number.startswith("+39")or phone_number.startswith("tel:"):
             return phone_number
         # Aggiungi prefisso internazionale italiano (+39) se manca
         return "+39" + phone_number
     
     def create_user_profile(self, input_payload: UserCreateInput) -> UserModelDTO:
-        """Registra un nuovo utente nel sistema.
-        Scopo: Valida i dati, esegue l'hash della password e persiste il nuovo utente.
+        """
+        Scopo: Registra un nuovo utente nel sistema. Valida i dati, esegue l'hash della password e persiste il nuovo utente.
+
         Parametri:
         - input_payload (UserCreateInput): Dati anagrafici e password.
+
         Valore di ritorno:
         - UserModelDTO: Utente creato (senza password).
+
         Eccezioni:
-        - HTTPException: 400/422 per errori di validazione o email duplicata"""
+        - HTTPException(400): Se l'email è già registrata o errore DB.
+        - HTTPException(422): Se c'è un errore nella creazione del modello utente.
+        """
         user_dict = input_payload.model_dump()
 
         #Controllo unicità email
@@ -116,13 +193,16 @@ class ProfiloUtenteService:
         return user.model_dump(by_alias=True, exclude={"password"})
     
     def update_user_profile(self, user_id: str, input_payload: UserUpdateInput) -> UserModelDTO:
-        """Aggiorna selettivamente i dati anagrafici dell'utente.
-        Scopo: Applica logiche specifiche per ogni campo e persiste le modifiche.
+        """
+        Scopo: Aggiorna selettivamente i dati anagrafici dell'utente. Applica logiche specifiche per ogni campo e persiste le modifiche.
+
         Parametri:
         - user_id (str): Identificativo dell'utente.
         - input_payload (UserUpdateInput): Campi opzionali da aggiornare (body).
+
         Valore di ritorno:
         - UserModelDTO: Dati aggiornati dell'utente.
+
         Eccezioni:
         - HTTPException: 404 se l'utente non esiste.
         """
@@ -175,13 +255,18 @@ class ProfiloUtenteService:
         return UserModelDTO(**updated_dict)
     
     def login_user(self, input_payload: UserCreateInput) -> UserModelDTO:
-        """Scopo: Verifica le credenziali e restituisce i dati dell'utente.
+        """
+        Scopo: Verifica le credenziali e restituisce i dati dell'utente.
+
         Parametri:
         - input_payload (UserCreateInput): Credenziali (email, password).
+
         Valore di ritorno:
         - UserModelDTO: Dati dell'utente autenticato.
+
         Eccezioni:
-        - HTTPException: 401 per credenziali errate."""
+        - HTTPException: 401 per credenziali errate.
+        """
         user_dict = input_payload.model_dump()
 
         # Hash della password fornita
@@ -210,7 +295,18 @@ class ProfiloUtenteService:
         return UserModelDTO(**existing_user)
     
     def delete_user_profile(self, input_payload: UserUpdateInput) -> str:
-        """Elimina un profilo utente (soft delete)."""
+        """
+        Scopo: Elimina un profilo utente (soft delete).
+
+        Parametri:
+        - input_payload (UserUpdateInput): Dati utente per verifica (email, password).
+
+        Valore di ritorno:
+        - str: Messaggio di conferma.
+
+        Eccezioni:
+        - HTTPException: 404 se utente non trovato, 401 se password errata.
+        """
         user_dict = input_payload.model_dump() #informazioni utente da eliminare (email, password)
         user_dict["password"] = self.hash_password(user_dict["password"])
         # Recupero utente dal DB

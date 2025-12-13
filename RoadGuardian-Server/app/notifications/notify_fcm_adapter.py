@@ -12,13 +12,19 @@ class NotifyFCMAdapter(NotificheAPI):
 
     def __init__(self, cred_path: str = None):
         """
-        Inizializza l'app Firebase.
+        Scopo: Inizializza l'app Firebase per l'invio delle notifiche.
         
-        Args:
+        Parametri:
             cred_path (str, optional): Percorso al file JSON delle credenziali di servizio.
                                        Se None, cerca:
                                        1. Variabile d'ambiente GOOGLE_APPLICATION_CREDENTIALS
                                        2. File 'firebase_credentials.json' nella root del progetto
+        
+        Valore di ritorno:
+            None
+            
+        Eccezioni:
+            ValueError: Se le credenziali non sono valide o non trovate (gestito internamente da firebase_admin).
         """
         if not firebase_admin._apps:
             if cred_path:
@@ -45,6 +51,21 @@ class NotifyFCMAdapter(NotificheAPI):
                     firebase_admin.initialize_app()
 
     def send_notification(self, token: str, title: str, body: str, data: dict = None) -> bool:
+        """
+        Scopo: Invia una notifica push a un singolo dispositivo tramite FCM.
+        
+        Parametri:
+            token (str): Il token FCM del dispositivo destinatario.
+            title (str): Il titolo della notifica.
+            body (str): Il corpo del messaggio.
+            data (dict, optional): Dati aggiuntivi (payload).
+            
+        Valore di ritorno:
+            bool: True se l'invio è riuscito, False in caso di errore.
+            
+        Eccezioni:
+            Cattura tutte le eccezioni (Exception) e le logga, restituendo False.
+        """
         try:
             print("NotifyFCMAdapter: Inizio invio notifica FCM")
             message = messaging.Message(
@@ -64,6 +85,21 @@ class NotifyFCMAdapter(NotificheAPI):
             return False
 
     def send_multicast_notification(self, tokens: List[str], title: str, body: str, data: dict = None) -> List[str]:
+        """
+        Scopo: Invia una notifica push a più dispositivi tramite FCM (Multicast).
+        
+        Parametri:
+            tokens (List[str]): Lista dei token FCM dei destinatari.
+            title (str): Il titolo della notifica.
+            body (str): Il corpo del messaggio.
+            data (dict, optional): Dati aggiuntivi.
+            
+        Valore di ritorno:
+            List[str]: Lista dei token per cui l'invio è fallito.
+            
+        Eccezioni:
+            Cattura tutte le eccezioni (Exception) e le logga, restituendo la lista completa dei token come falliti.
+        """
         if not tokens:
             return []
             

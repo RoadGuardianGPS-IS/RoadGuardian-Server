@@ -3,9 +3,24 @@ from typing import Optional
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 class UserModel(BaseModel):
-    """Modello utente interno che mappa un documento utente nel DB Mongo.
+    """
+    Scopo: Modello utente interno che mappa un documento utente nel DB Mongo.
 
-    Descrizione: Rappresenta i campi dell'utente salvati in MongoDB.
+    Parametri:
+    - id (Optional[str]): Identificativo univoco (alias _id).
+    - email (EmailStr): Indirizzo email dell'utente.
+    - first_name (str): Nome dell'utente.
+    - last_name (str): Cognome dell'utente.
+    - password (str): Password hashata.
+    - num_tel (PhoneNumber): Numero di telefono.
+    - is_active (bool): Flag stato account (default True).
+    - role (str): Ruolo utente (default "user").
+
+    Valore di ritorno:
+    - UserModel: Istanza del modello per persistenza.
+
+    Eccezioni:
+    - ValidationError: Se i dati non rispettano il tipo atteso.
     """
     # Field(alias="_id") permette di mappare il campo '_id' di Mongo su 'id' di Pydantic
     id: Optional[str] = Field(default=None, alias="_id")
@@ -19,12 +34,17 @@ class UserModel(BaseModel):
     role: str = "user" #user o admin
 
     class Config: #classe per creare admin, scritta come esempio
-        """Configurazione Pydantic per serializzazione e esempio.
+        """
+        Scopo: Configurazione Pydantic per serializzazione e esempio.
 
-        Scopo: Abilitare `populate_by_name` e fornire esempio JSON per lo schema.
-        Parametri: Nessuno (modifica comportamento di Pydantic internamente).
-        Valore di ritorno: None.
-        Eccezioni: Nessuna.
+        Parametri:
+        - Nessuno (modifica comportamento di Pydantic internamente).
+
+        Valore di ritorno:
+        - None.
+
+        Eccezioni:
+        - Nessuna.
         """
         populate_by_name = True
         json_schema_extra = {
@@ -39,9 +59,23 @@ class UserModel(BaseModel):
         }
 
 class UserModelDTO(BaseModel):
-    """DTO di output utente (esclude la password) destinato al client.
+    """
+    Scopo: DTO di output utente (esclude la password) destinato al client.
 
-    Descrizione: Espone solo i campi pubblici di un utente per risposte API.
+    Parametri:
+    - id (Optional[str]): Identificativo univoco.
+    - email (EmailStr): Email utente.
+    - first_name (str): Nome.
+    - last_name (str): Cognome.
+    - num_tel (str): Numero di telefono.
+    - is_active (bool): Stato account.
+    - role (str): Ruolo.
+
+    Valore di ritorno:
+    - UserModelDTO: Oggetto per risposta API.
+
+    Eccezioni:
+    - ValidationError: Se i dati non sono validi.
     """
     id: Optional[str] = Field(default=None, alias="_id") 
     email: EmailStr #forse da implementare in schema
@@ -54,9 +88,23 @@ class UserModelDTO(BaseModel):
     model_config = ConfigDict(populate_by_name = True)
 
 class UserModelChangeDTO(BaseModel):
-    """DTO per aggiornamenti parziali o cancellazione logica dell'utente.
+    """
+    Scopo: DTO per aggiornamenti parziali o cancellazione logica dell'utente.
 
-    Descrizione: Campi opzionali usati per modifiche del profilo utente.
+    Parametri:
+    - email (Optional[EmailStr]): Nuova email.
+    - first_name (Optional[str]): Nuovo nome.
+    - last_name (Optional[str]): Nuovo cognome.
+    - password (Optional[str]): Nuova password.
+    - num_tel (Optional[PhoneNumber]): Nuovo telefono.
+    - is_active (Optional[bool]): Nuovo stato.
+    - role (str): Ruolo (default "user").
+
+    Valore di ritorno:
+    - UserModelChangeDTO: Oggetto per aggiornamento.
+
+    Eccezioni:
+    - ValidationError: Se i dati non sono validi.
     """
     email: Optional[EmailStr] #forse da implementare in schema
     first_name: Optional[str]

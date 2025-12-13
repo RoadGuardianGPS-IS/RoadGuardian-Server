@@ -10,31 +10,37 @@ class NotificheAPI(ABC):
     @abstractmethod
     def send_notification(self, token: str, title: str, body: str, data: dict = None) -> bool:
         """
-        Invia una notifica push a un singolo dispositivo.
+        Scopo: Invia una notifica push a un singolo dispositivo.
         
-        Args:
+        Parametri:
             token (str): Il token FCM del dispositivo destinatario.
             title (str): Il titolo della notifica.
             body (str): Il corpo del messaggio.
             data (dict, optional): Dati aggiuntivi (payload) da inviare con la notifica.
             
-        Returns:
+        Valore di ritorno:
             bool: True se l'invio è riuscito, False altrimenti.
+            
+        Eccezioni:
+            Nessuna eccezione sollevata direttamente dall'interfaccia.
         """
         pass
 
     @abstractmethod
     def send_multicast_notification(self, tokens: List[str], title: str, body: str, data: dict = None) -> List[str]:
         """
-        Invia una notifica push a più dispositivi.
+        Scopo: Invia una notifica push a più dispositivi.
         
-        Args:
+        Parametri:
             tokens (List[str]): Lista dei token FCM dei destinatari.
             title (str): Il titolo della notifica.
             body (str): Il corpo del messaggio.
             data (dict, optional): Dati aggiuntivi.
             
-        Returns:
+        Valore di ritorno:
             List[str]: Lista dei token per cui l'invio è fallito.
+            
+        Eccezioni:
+            Nessuna eccezione sollevata direttamente dall'interfaccia.
         """
         pass

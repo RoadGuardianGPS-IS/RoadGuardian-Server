@@ -16,22 +16,22 @@ class Validators:
     def validatePasswordComplexity(v: str) -> str:
         """
         Scopo: Verifica la complessità della password secondo policy di sicurezza.
-        
+
         Parametri:
-            v (str): Password in chiaro da validare.
-        
+        - v (str): Password in chiaro da validare.
+
         Valore di ritorno:
-            str: La password validata (invariata).
-        
+        - str: La password validata (invariata).
+
         Eccezioni:
-            ValueError: Se non rispetta uno dei vincoli di complessità.
-        
+        - ValueError: Se non rispetta uno dei vincoli di complessità.
+
         Vincoli Input:
-            - Lunghezza: 8-25 caratteri
-            - Almeno una maiuscola (A-Z)
-            - Almeno una minuscola (a-z)
-            - Almeno un numero (0-9)
-            - Almeno un carattere speciale (!@#$%^&*()_+-=[]{};\\':\"|,./?")
+        - Lunghezza: 8-25 caratteri
+        - Almeno una maiuscola (A-Z)
+        - Almeno una minuscola (a-z)
+        - Almeno un numero (0-9)
+        - Almeno un carattere speciale (!@#$%^&*()_+-=[]{};\\':\"|,./?")
         """
         # Validazione lunghezza
         if not (8 <= len(v) <= 25):
@@ -53,23 +53,23 @@ class Validators:
     def validatePhoneNumber(v: str) -> str:
         """
         Scopo: Valida e normalizza un numero di telefono italiano con prefisso.
-        
+
         Parametri:
-            v (str): Numero di telefono in input. Accetta:
-                    - Nazionale: '3331234567', '0212345678'
-                    - Internazionale: '+393331234567'
-                    - Con spazi/trattini: '+39 333 123 4567', '+39-333-1234567'
-        
+        - v (str): Numero di telefono in input. Accetta:
+            - Nazionale: '3331234567', '0212345678'
+            - Internazionale: '+393331234567'
+            - Con spazi/trattini: '+39 333 123 4567', '+39-333-1234567'
+
         Valore di ritorno:
-            str: Numero normalizzato con prefisso '+39'. Esempio: '+393331234567'
-        
+        - str: Numero normalizzato con prefisso '+39'. Esempio: '+393331234567'
+
         Eccezioni:
-            ValueError: Se numero non è italiano valido (prefisso errato, lunghezza, tipo).
-        
+        - ValueError: Se numero non è italiano valido (prefisso errato, lunghezza, tipo).
+
         Vincoli Input:
-            - Lunghezza: 9-10 cifre dopo prefisso
-            - Charset: 0-9, spazi, trattini
-            - Tipo: Fisso (09) o Mobile (3xx)
+        - Lunghezza: 9-10 cifre dopo prefisso
+        - Charset: 0-9, spazi, trattini
+        - Tipo: Fisso (09) o Mobile (3xx)
         """
         phone_clean = v.replace(" ", "").replace("-", "")
         
@@ -121,9 +121,15 @@ class PhoneUpdateSchema(BaseModel):
     def validateNewPhone(cls, v: str) -> str:
         """
         Scopo: Valida e normalizza il numero di telefono per l'aggiornamento.
-        Parametri: v (str) - Numero di telefono in input
-        Valore di ritorno: str - Numero normalizzato con prefisso '+39'
-        Eccezioni: ValueError se il numero non è un telefono italiano valido
+
+        Parametri:
+        - v (str): Numero di telefono in input.
+
+        Valore di ritorno:
+        - str: Numero normalizzato con prefisso '+39'.
+
+        Eccezioni:
+        - ValueError: Se il numero non è un telefono italiano valido.
         """
         return Validators.validatePhoneNumber(v)
 
@@ -140,9 +146,15 @@ class PasswordUpdateSchema(BaseModel):
     def validateNewPassword(cls, v: SecretStr) -> SecretStr:
         """
         Scopo: Verifica la complessità della password secondo policy di sicurezza.
-        Parametri: v (SecretStr) - Password fornita (nascosta nei log)
-        Valore di ritorno: SecretStr - Password validata (invariata)
-        Eccezioni: ValueError se non rispetta i vincoli di complessità
+
+        Parametri:
+        - v (SecretStr): Password fornita (nascosta nei log).
+
+        Valore di ritorno:
+        - SecretStr: Password validata (invariata).
+
+        Eccezioni:
+        - ValueError: Se non rispetta i vincoli di complessità.
         """
         # Estrae il valore dalla SecretStr per la validazione
         password_plain = v.get_secret_value()
@@ -257,9 +269,15 @@ class UserCreateInput(UserBase):
     def validatePassword(cls, v: str) -> str:
         """
         Scopo: Verifica complessità password secondo policy di sicurezza aziendale.
-        Parametri: v (str) - Password in chiaro fornita dall'utente
-        Valore di ritorno: str - Password validata (invariata)
-        Eccezioni: ValueError se non rispetta complessità richiesta
+
+        Parametri:
+        - v (str): Password in chiaro fornita dall'utente.
+
+        Valore di ritorno:
+        - str: Password validata (invariata).
+
+        Eccezioni:
+        - ValueError: Se non rispetta complessità richiesta.
         """
         return Validators.validatePasswordComplexity(v)
     
@@ -267,9 +285,15 @@ class UserCreateInput(UserBase):
     def validatePhone(cls, v: str) -> str:
         """
         Scopo: Valida e normalizza numero di telefono italiano durante registrazione.
-        Parametri: v (str) - Numero di telefono in input
-        Valore di ritorno: str - Numero normalizzato con prefisso '+39'
-        Eccezioni: ValueError se non è un telefono italiano valido
+
+        Parametri:
+        - v (str): Numero di telefono in input.
+
+        Valore di ritorno:
+        - str: Numero normalizzato con prefisso '+39'.
+
+        Eccezioni:
+        - ValueError: Se non è un telefono italiano valido.
         """
         return Validators.validatePhoneNumber(v)
 
@@ -317,10 +341,18 @@ class UserUpdateInput(BaseModel):
     def validatePhoneIfProvided(cls, v: Optional[str]) -> Optional[str]:
         """
         Scopo: Valida numero di telefono solo se fornito durante aggiornamento parziale.
-        Parametri: v (Optional[str]) - Numero di telefono o None
-        Valore di ritorno: Optional[str] - Numero normalizzato o None
-        Eccezioni: ValueError se numero è fornito ma non valido
-        Vincoli: Se None nessuna validazione, se fornito deve rispettare formato italiano
+
+        Parametri:
+        - v (Optional[str]): Numero di telefono o None.
+
+        Valore di ritorno:
+        - Optional[str]: Numero normalizzato o None.
+
+        Eccezioni:
+        - ValueError: Se numero è fornito ma non valido.
+
+        Vincoli:
+        - Se None nessuna validazione, se fornito deve rispettare formato italiano.
         """
         if v is None:
             return None
