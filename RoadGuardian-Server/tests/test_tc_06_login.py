@@ -54,7 +54,7 @@ class TestLoginUser:
         password = "ISBello1!"
         return {
             "_id": "user_id_123",
-            "email": "stundeti@gmail.com",
+            "email": "studenti@gmail.com",
             "password": hashlib.sha256(password.encode()).hexdigest(),
             "first_name": "Mario",
             "last_name": "Rossi",
