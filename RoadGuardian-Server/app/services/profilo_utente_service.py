@@ -65,7 +65,14 @@ class ProfiloUtenteService:
         return "+39" + phone_number
     
     def create_user_profile(self, input_payload: UserCreateInput) -> UserModel:
-
+        """Registra un nuovo utente nel sistema.
+        Scopo: Valida i dati, esegue l'hash della password e persiste il nuovo utente.
+        Parametri:
+        - input_payload (UserCreateInput): Dati anagrafici e password.
+        Valore di ritorno:
+        - UserModel: Utente creato (con password hashata).
+        Eccezioni:
+        - HTTPException: 400/422 per errori di validazione o email duplicata"""
         user_dict = input_payload.model_dump()
 
         #Controllo unicità email
@@ -96,7 +103,16 @@ class ProfiloUtenteService:
         return user.model_dump(by_alias=True, exclude={"password"})
     
     def update_user_profile(self, user_id: str, input_payload: UserUpdateInput) -> UserModelDTO:
-        """Modifica i dati anagrafici di un utente specifico."""
+        """Aggiorna selettivamente i dati anagrafici dell'utente.
+        Scopo: Applica logiche specifiche per ogni campo e persiste le modifiche.
+        Parametri:
+        - user_id (str): Identificativo dell'utente.
+        - input_payload (UserUpdateInput): Campi opzionali da aggiornare (body).
+        Valore di ritorno:
+        - UserModelDTO: Dati aggiornati dell'utente.
+        Eccezioni:
+        - HTTPException: 404 se l'utente non esiste.
+        """
         #Otteniamo solo i campi che l'utente ha effettivamente inviato
         update_data = input_payload.model_dump(exclude_unset=True)
 
@@ -143,7 +159,13 @@ class ProfiloUtenteService:
         return UserModelDTO(**updated_dict)
     
     def login_user(self, input_payload: UserCreateInput) -> UserModelDTO:
-        """Effettua il login dell'utente verificando email e password."""
+        """Scopo: Verifica le credenziali e restituisce i dati dell'utente.
+        Parametri:
+        - input_payload (UserCreateInput): Credenziali (email, password).
+        Valore di ritorno:
+        - UserModelDTO: Dati dell'utente autenticato.
+        Eccezioni:
+        - HTTPException: 401 per credenziali errate."""
         user_dict = input_payload.model_dump()
 
         # Hash della password fornita

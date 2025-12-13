@@ -54,6 +54,8 @@ class MappaService:
         """
         Elabora l'aggiornamento della posizione dell'utente.
         Controlla se ci sono segnalazioni attive entro 3 km e invia notifiche.
+        Args:
+            position_update (UserPositionUpdate): Dati di posizione e token FCM dell'utente
         """
         if not position_update.fcm_token:
             return # Nessun token per inviare notifiche
