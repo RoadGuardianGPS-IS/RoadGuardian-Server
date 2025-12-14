@@ -2,7 +2,7 @@
 
 ## 📱 Descrizione
 
-RoadGuardian è un'applicazione innovativa che fornisce un sistema di segnalazione e condivisione di pericoli sulla strada in tempo reale. Gli utenti possono segnalare incidenti, permettendo alla comunità di restare informata e di viaggiare in sicurezza. L'app integra notifiche push in tempo reale e visualizzazione interattiva dei pericoli su mappa. Attualmente ti repository nella repository /Server premi qui per accedere alla repository /Client: https://github.com/RoadGuardianGPS-IS/RoadGuardian-Client
+RoadGuardian è un'applicazione innovativa che fornisce un sistema di segnalazione e condivisione di pericoli sulla strada in tempo reale. Gli utenti possono segnalare incidenti, permettendo alla comunità di restare informata e di viaggiare in sicurezza. L'app integra notifiche push in tempo reale e visualizzazione interattiva dei pericoli su mappa. Attualmente ti trovi nella repository Server premi qui per accedere alla repository Client: https://github.com/RoadGuardianGPS-IS/RoadGuardian-Client
 
 ---
 
