@@ -1,0 +1,309 @@
+
+--- Esecuzione Test: test_coordinate_valide ---
+Descrizione: Test input con coordinate valide (Equivalenza Valida)
+Input Data:
+{   'category': 'test',
+    'description': 'test',
+    'incident_latitude': 41.8902,
+    'incident_longitude': 12.4924,
+    'seriousness': 'low'}
+Output Schema:
+{   'category': 'test',
+    'description': 'test',
+    'img_url': None,
+    'incident_date': '2025-12-09',
+    'incident_latitude': 41.8902,
+    'incident_longitude': 12.4924,
+    'incident_time': '14:03:53',
+    'seriousness': 'low'}
+[OK] Test test_coordinate_valide completato con successo.
+.
+--- Esecuzione Test: test_default_date_time ---
+Descrizione: Test che data e ora vengano generate se mancanti
+Input Data:
+{   'category': 'generic',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'seriousness': 'medium'}
+Output Schema (con defaults):
+{   'category': 'generic',
+    'description': None,
+    'img_url': None,
+    'incident_date': '2025-12-09',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': '14:03:53',
+    'seriousness': 'medium'}
+[OK] Test test_default_date_time completato con successo.
+.
+--- Esecuzione Test: test_latitudine_fuori_limite_inferiore ---
+Descrizione: Test Boundary: Latitudine < -90 (Non Valido)
+Input Data:
+{   'category': 'test',
+    'incident_latitude': -90.1,
+    'incident_longitude': 12.0,
+    'seriousness': 'low'}
+Errore Pydantic Rilevato:
+1 validation error for SegnalazioneManualeInput
+incident_latitude
+  Input should be greater than or equal to -90 [type=greater_than_equal, input_value=-90.1, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.12/v/greater_than_equal
+[OK] Test test_latitudine_fuori_limite_inferiore completato con successo.
+.
+--- Esecuzione Test: test_latitudine_fuori_limite_superiore ---
+Descrizione: Test Boundary: Latitudine > 90 (Non Valido)
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 90.1,
+    'incident_longitude': 12.0,
+    'seriousness': 'low'}
+Errore Pydantic Rilevato:
+1 validation error for SegnalazioneManualeInput
+incident_latitude
+  Input should be less than or equal to 90 [type=less_than_equal, input_value=90.1, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.12/v/less_than_equal
+[OK] Test test_latitudine_fuori_limite_superiore completato con successo.
+.
+--- Esecuzione Test: test_longitudine_fuori_limite ---
+Descrizione: Test Boundary: Longitudine > 180 (Non Valido)
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 45.0,
+    'incident_longitude': 180.1,
+    'seriousness': 'low'}
+Errore Pydantic Rilevato:
+1 validation error for SegnalazioneManualeInput
+incident_longitude
+  Input should be less than or equal to 180 [type=less_than_equal, input_value=180.1, input_type=float]
+    For further information visit https://errors.pydantic.dev/2.12/v/less_than_equal
+[OK] Test test_longitudine_fuori_limite completato con successo.
+.
+--- Esecuzione Test: test_mappa_dto_inheritance ---
+Descrizione: Testa che il DTO di dettaglio erediti correttamente e validi i campi extra
+Input Data:
+{   '_id': '123',
+    'category': 'lavori',
+    'description': 'Lavori in corso',
+    'incident_date': '2025-01-01',
+    'incident_latitude': 45.0,
+    'incident_longitude': 12.0,
+    'incident_time': '10:00:00',
+    'seriousness': 'low',
+    'status': True}
+Output DTO:
+{   'category': 'lavori',
+    'description': 'Lavori in corso',
+    'id': '123',
+    'img_url': None,
+    'incident_date': '2025-01-01',
+    'incident_latitude': 45.0,
+    'incident_longitude': 12.0,
+    'incident_time': '10:00:00',
+    'seriousness': 'low',
+    'status': True}
+[OK] Test test_mappa_dto_inheritance completato con successo.
+.
+--- Esecuzione Test: test_model_from_mongo_logic ---
+Descrizione: Testa il validatore 'split_datetime' di IncidentModel.
+Simula il recupero di un documento da MongoDB che ha data e ora unite.
+Input Data (from Mongo):
+{   '_id': '60d5ecb8b5c9c62b3c1d4e5f',
+    'category': 'accident',
+    'incident_date': datetime.datetime(2025, 12, 25, 15, 30),
+    'incident_latitude': 20.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439011'}
+Output Model:
+{   'category': 'accident',
+    'description': None,
+    'id': '60d5ecb8b5c9c62b3c1d4e5f',
+    'img_url': None,
+    'incident_date': '2025-12-25',
+    'incident_latitude': 20.0,
+    'incident_longitude': 10.0,
+    'incident_time': '15:30:00',
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439011'}
+[OK] Test test_model_from_mongo_logic completato con successo.
+.
+--- Esecuzione Test: test_model_to_mongo_logic ---
+Descrizione: Testa il metodo 'to_mongo' di IncidentModel.
+Verifica che data e ora vengano unite per il salvataggio.
+Input Data (Model):
+{   'category': 'accident',
+    'incident_date': datetime.date(2025, 12, 25),
+    'incident_latitude': 20.0,
+    'incident_longitude': 10.0,
+    'incident_time': datetime.time(15, 30),
+    'seriousness': 'high',
+    'user_id': '507f1f77bcf86cd799439011'}
+Output Data (to Mongo):
+{   'category': 'accident',
+    'description': None,
+    'img_url': None,
+    'incident_date': datetime.datetime(2025, 12, 25, 15, 30),
+    'incident_latitude': 20.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439011'}
+[OK] Test test_model_to_mongo_logic completato con successo.
+.
+--- Esecuzione Test: test_scenario_repo_data_consistency ---
+Descrizione: Replica gli scenari di dati usati in 'metodi_repo_segnalazione.py'
+per garantire che il Modello supporti le query del Repository.
+Scenario 1 Input:
+{   'category': 'accident',
+    'incident_date': datetime.date(2023, 10, 25),
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': datetime.time(14, 30),
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439012'}
+Model Created:
+{   'category': 'accident',
+    'description': None,
+    'id': None,
+    'img_url': None,
+    'incident_date': '2023-10-25',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': '14:30:00',
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439012'}
+Mongo Data:
+{   'category': 'accident',
+    'description': None,
+    'img_url': None,
+    'incident_date': datetime.datetime(2023, 10, 25, 14, 30),
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439012'}
+Reconstructed Model:
+{   'category': 'accident',
+    'description': None,
+    'id': None,
+    'img_url': None,
+    'incident_date': '2023-10-25',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': '14:30:00',
+    'seriousness': 'high',
+    'status': True,
+    'user_id': '507f1f77bcf86cd799439012'}
+Scenario 2 Input:
+{   'category': 'other',
+    'incident_date': datetime.date(2023, 10, 25),
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': datetime.time(9, 0),
+    'seriousness': 'low',
+    'status': False,
+    'user_id': '507f1f77bcf86cd799439013'}
+Model Created:
+{   'category': 'other',
+    'description': None,
+    'id': None,
+    'img_url': None,
+    'incident_date': '2023-10-25',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': '09:00:00',
+    'seriousness': 'low',
+    'status': False,
+    'user_id': '507f1f77bcf86cd799439013'}
+Mongo Data:
+{   'category': 'other',
+    'description': None,
+    'img_url': None,
+    'incident_date': datetime.datetime(2023, 10, 25, 9, 0),
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'seriousness': 'low',
+    'status': False,
+    'user_id': '507f1f77bcf86cd799439013'}
+Reconstructed Model:
+{   'category': 'other',
+    'description': None,
+    'id': None,
+    'img_url': None,
+    'incident_date': '2023-10-25',
+    'incident_latitude': 41.0,
+    'incident_longitude': 12.0,
+    'incident_time': '09:00:00',
+    'seriousness': 'low',
+    'status': False,
+    'user_id': '507f1f77bcf86cd799439013'}
+[OK] Test test_scenario_repo_data_consistency completato con successo.
+.
+--- Esecuzione Test: test_seriousness_invalida ---
+Descrizione: Test valore enum non valido
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'critical'}
+Errore Pydantic Rilevato:
+1 validation error for SegnalazioneManualeInput
+seriousness
+  Input should be 'low', 'medium' or 'high' [type=literal_error, input_value='critical', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/literal_error
+[OK] Test test_seriousness_invalida completato con successo.
+.
+--- Esecuzione Test: test_seriousness_valida ---
+Descrizione: Test valori enum validi
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'low'}
+Output Schema:
+{   'category': 'test',
+    'description': None,
+    'img_url': None,
+    'incident_date': '2025-12-09',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'incident_time': '14:03:53',
+    'seriousness': 'low'}
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'medium'}
+Output Schema:
+{   'category': 'test',
+    'description': None,
+    'img_url': None,
+    'incident_date': '2025-12-09',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'incident_time': '14:03:53',
+    'seriousness': 'medium'}
+Input Data:
+{   'category': 'test',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'seriousness': 'high'}
+Output Schema:
+{   'category': 'test',
+    'description': None,
+    'img_url': None,
+    'incident_date': '2025-12-09',
+    'incident_latitude': 10.0,
+    'incident_longitude': 10.0,
+    'incident_time': '14:03:53',
+    'seriousness': 'high'}
+[OK] Test test_seriousness_valida completato con successo.
+.
+----------------------------------------------------------------------
+Ran 11 tests in 0.009s
+
+OK

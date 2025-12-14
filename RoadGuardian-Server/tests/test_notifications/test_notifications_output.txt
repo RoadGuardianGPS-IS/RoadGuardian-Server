@@ -1,0 +1,31 @@
+
+--- Esecuzione Test: test_no_notification_when_far ---
+Descrizione: Testa che la notifica NON venga inviata se l'utente è lontano (> 3km)
+Input User Position:
+{'fcm_token': 'fake_token_123', 'latitudine': 45.4642, 'longitudine': 9.19}
+Incident Position: Lat=41.9028, Lon=12.4964
+MappaService: Posizione Aggiornata
+Nessuna notifica inviata (corretto).
+[OK] Test test_no_notification_when_far completato con successo.
+.
+--- Esecuzione Test: test_no_notification_without_token ---
+Descrizione: Testa che non venga fatto nulla se manca il token FCM
+Input User Position:
+{'fcm_token': None, 'latitudine': 41.9028, 'longitudine': 12.4964}
+Nessuna notifica inviata (manca token).
+[OK] Test test_no_notification_without_token completato con successo.
+.
+--- Esecuzione Test: test_notification_sent_when_close ---
+Descrizione: Testa che la notifica venga inviata se l'utente è vicino a una segnalazione (< 3km)
+Input User Position:
+{'fcm_token': 'fake_token_123', 'latitudine': 41.903, 'longitudine': 12.4965}
+Incident Position: Lat=41.9028, Lon=12.4964
+MappaService: Nelle vicinanze della segnalazione
+MappaService: Posizione Aggiornata
+Notifica inviata correttamente.
+[OK] Test test_notification_sent_when_close completato con successo.
+.
+----------------------------------------------------------------------
+Ran 3 tests in 0.008s
+
+OK
