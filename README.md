@@ -21,18 +21,18 @@ RoadGuardian è un'applicazione innovativa che fornisce un sistema di segnalazio
 ---
 
 ## 👥 Contributori
-- Simone Domenico Avitabile
-- Giovanna Massa
-- Ciro Navarra
-- Mattia D'Auria
-- Raffaele Cimmino
-- Angela Setola
-- Lorenzo Olivola
-- Sabato Iaquino
-- Carlo Mancusi
-- Davide Pio Lazzarini
-- Eljon Hida
-- Luigi Consiglio
+- Simone Domenico Avitabile - Team Member
+- Giovanna Massa - Team Member
+- Ciro Navarra - Team Member
+- Mattia D'Auria - Team Member
+- Raffaele Cimmino - Team Member
+- Angela Setola - Team Member
+- Lorenzo Olivola - Team Member
+- Sabato Iaquino - Team Member
+- Carlo Mancusi - Team Member
+- Davide Pio Lazzarini - Team Member
+- Eljon Hida - Project Manager
+- Luigi Consiglio - Project Manager
 
 
 ---
