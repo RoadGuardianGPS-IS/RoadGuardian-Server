@@ -1,7 +1,12 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 from pydantic_extra_types.phone_numbers import PhoneNumber
-
+class UserCreateInput(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    password: str
+    num_tel: Optional[str]
 class UserModel(BaseModel):
     """
     Scopo: Modello utente interno che mappa un documento utente nel DB Mongo.

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from schemas.segnalazione_schema import SegnalazioneInput, SegnalazioneOutputDTO
+from schemas.linee_guida_ai_schema import LineeGuidaAIOutputDTO
 from db.connection import get_database
 from services.segnalazione_service import SegnalazioneService
 
@@ -95,6 +96,39 @@ def get_incident_guidelines(
     - HTTPException: 404 se segnalazione inesistente o non attiva.
     """
     return service.get_guidelines_for_incident(incident_id)
+
+#  Linee Guida AI-Generated (RF_16 - versione ML) ---
+from typing import List
+@router.get(
+        "/lineeguidaai/{incident_id}",
+        response_model=List[str],
+
+)
+def get_ai_incident_guidelines(
+        incident_id: str,
+        service: SegnalazioneService = Depends(get_segnalazione_service)
+):
+        """
+        Scopo: Restituisce SOLO la lista delle linee guida comportamentali generate dal modello ML per l'incidente.
+
+        Parametri:
+        - incident_id (str): Identificativo della segnalazione (path).
+        - service (SegnalazioneService): Service applicativo.
+
+        Valore di ritorno:
+        - List[str]: Lista delle linee guida.
+
+        Eccezioni:
+        - HTTPException: 404 se segnalazione inesistente o non attiva.
+        - HTTPException: 503 se l'API ML non è raggiungibile.
+
+        Note:
+        - Le caratteristiche stradali (tipo strada, semafori, stop, rotatorie, ecc.)
+            vengono rilevate automaticamente dalle coordinate GPS dell'incidente.
+        - In caso di errore API ML, viene restituito un errore che indica di usare
+            l'endpoint standard /lineeguida/{incident_id} per le linee guida statiche.
+        """
+        return service.get_ai_guidelines_for_incident(incident_id=incident_id)
 
 
 @router.delete("/{incident_id}",status_code=status.HTTP_204_NO_CONTENT)

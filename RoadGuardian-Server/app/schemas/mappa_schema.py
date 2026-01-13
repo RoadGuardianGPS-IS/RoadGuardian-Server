@@ -1,7 +1,17 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal, Optional
 from datetime import date, time
-
+class SegnalazioneDettaglioDTO(BaseModel):
+    id: Optional[str]
+    category: Optional[str]
+    description: Optional[str]
+    incident_date: Optional[str]
+    incident_latitude: Optional[float]
+    incident_longitude: Optional[float]
+    incident_time: Optional[str]
+    seriousness: Optional[str]
+    status: Optional[bool]
+    img_url: Optional[str]
 class PosizioneGPS(BaseModel):
     """Rappresenta una posizione GPS per filtri e centering mappa."""
     latitudine: float = Field(

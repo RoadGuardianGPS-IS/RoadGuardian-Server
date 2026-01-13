@@ -1,7 +1,9 @@
-from schemas.mappa_schema import SegnalazioneMapDTO
+from schemas.mappa_schema import SegnalazioneMapDTO, SegnalazioneDettaglioDTO
 from db.segnalazione_repository import get_segnalazione_by_id, create_segnalazione, delete_segnalazione
 from schemas.segnalazione_schema import SegnalazioneInput, SegnalazioneOutputDTO
+from schemas.linee_guida_ai_schema import LineeGuidaAIOutputDTO
 from models.incident_model import IncidentModel
+from services.linee_guida_ai_adapter import get_guidelines_adapter
 from datetime import datetime
 
 class SegnalazioneService: 
@@ -146,3 +148,79 @@ class SegnalazioneService:
             segnalazione_data["incident_time"] = dt.time()
         
         return SegnalazioneOutputDTO(**segnalazione_data)
+
+    def get_ai_guidelines_for_incident(self, incident_id: str) -> list:
+        """
+        Scopo: Ottiene linee guida comportamentali generate dal modello ML per un incidente.
+        
+        Utilizza il Trasformatore_dati_segnalazione_for_AI_Model per rilevare automaticamente
+        le caratteristiche stradali da OpenStreetMap tramite OSMnx.
+
+        Parametri:
+        - incident_id (str): Identificativo della segnalazione.
+
+        Valore di ritorno:
+        - LineeGuidaAIOutputDTO: DTO con le linee guida AI e metadati.
+
+        Eccezioni:
+        - ValueError: Se la segnalazione non esiste o non è attiva.
+        """
+        # Recupera i dati dell'incidente
+        incident = get_segnalazione_by_id(incident_id)
+        if not incident or incident.get("status", False) == False:
+            raise ValueError("Segnalazione non trovata o non attiva")
+        
+        # Ottieni l'adapter
+        adapter = get_guidelines_adapter()
+        
+        try:
+            # Ricostruisci un oggetto SegnalazioneInput dai dati dell'incidente
+            incident_date_val = incident.get("incident_date")
+            incident_time_val = incident.get("incident_time")
+            
+            # Gestisci datetime unificato
+            if isinstance(incident_date_val, datetime):
+                incident_time_val = incident_date_val.time()
+                incident_date_val = incident_date_val.date()
+            
+            segnalazione_for_transform = SegnalazioneInput(
+                incident_latitude=incident.get("incident_latitude"),
+                incident_longitude=incident.get("incident_longitude"),
+                incident_date=incident_date_val,
+                incident_time=incident_time_val,
+                seriousness=incident.get("seriousness", "high"),
+                category=incident.get("category", "incidente stradale")
+            )
+            
+            # Usa il Trasformatore per rilevare automaticamente le caratteristiche stradali
+            ai_input = adapter.build_ai_input_from_segnalazione(
+                segnalazione_input=segnalazione_for_transform,
+                use_osm_data=True
+            )
+            
+            # DEBUG: Log dell'input inviato al modello ML
+            print(f"[SegnalazioneService] AI Input: Severity={ai_input.Severity}, Incident_Type={ai_input.Incident_Type}, Road_Type={ai_input.Road_Type}, Daylight={ai_input.Daylight}")
+            print(f"[SegnalazioneService] AI Input Features: Junction={ai_input.Junction}, Stop={ai_input.Stop}, Traffic_Signal={ai_input.Traffic_Signal}, Crossing={ai_input.Crossing}, Railway={ai_input.Railway}, Roundabout={ai_input.Roundabout}")
+                
+        except Exception as e:
+            print(f"[SegnalazioneService] Errore costruzione input da OSM: {e}, uso fallback")
+            # Fallback minimo
+            ai_input = adapter.build_ai_input_from_incident(
+                seriousness=incident.get("seriousness", "high"),
+                category=incident.get("category", ""),
+                incident_time=None,
+                road_type=None,
+                road_features=None
+            )
+        
+        try:
+            # Tenta di ottenere le linee guida dall'API ML
+            ai_response = adapter.get_guidelines_sync(ai_input)
+            return ai_response.guidelines
+        except Exception as e:
+            # Segnala che le linee guida AI non sono disponibili
+            print(f"[SegnalazioneService] Errore API ML: {e}")
+            raise ValueError(
+                "Linee guida AI non disponibili. "
+                "Utilizzare l'endpoint /lineeguida/{incident_id} per le linee guida standard."
+            )

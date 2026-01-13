@@ -3,7 +3,6 @@ from typing import Optional
 from bson import ObjectId
 from pydantic import BaseModel, EmailStr, Field, SecretStr, field_validator
 
-
 # --- VALIDATORI ---
 
 class Validators:

@@ -1,6 +1,22 @@
+
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 from datetime import date, time, datetime
 from typing import Optional, Dict, Literal
+
+# ...existing code...
+
+class SegnalazioneManualeInput(BaseModel):
+    """Input per creazione segnalazione manuale (compatibilità test legacy)."""
+    user_id: Optional[str]
+    incident_date: Optional[date]
+    incident_time: Optional[time]
+    incident_longitude: float
+    incident_latitude: float
+    seriousness: str
+    status: bool = True
+    category: Optional[str]
+    description: Optional[str]
+    img_url: Optional[str]
 
 
 class SegnalazioneInput(BaseModel):
@@ -31,9 +47,9 @@ class SegnalazioneInput(BaseModel):
         ge=-90.0, 
         le=90.0
     )
-    seriousness: Literal['high'] = Field(
+    seriousness: Literal['low', 'medium', 'high'] = Field(
         'high', 
-        description="Livello di gravità dell'incidente. Valore ammesso: 'high'."
+        description="Livello di gravità dell'incidente. Valori ammessi: 'low', 'medium', 'high'."
     )
     category: str = Field(
         'incidente stradale', 
